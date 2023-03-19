@@ -1,0 +1,55 @@
+openapi: "3.0.3"
+info:
+  title: "Glide API"
+  description: "API for Glide app"
+  version: "0.0.1"
+paths:
+  /users:
+    post:
+      description: "Creates a new user"
+      requestBody:
+        description: "A JSON object containing user information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "User stored correctly"
+  /users/{id}:
+    get:
+      description: "Returns a user by its ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/User"
+components:
+  schemas:
+    User:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        username:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
