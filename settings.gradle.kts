@@ -1,2 +1,2 @@
 rootProject.name = "glide-ktor"
-include(":app")
+include(":api")
