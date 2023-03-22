@@ -14,10 +14,10 @@ fun Application.configureRouting() {
     routing {
         route("/") {
             handle {
-                call.respondRedirect("/api/v1/docs")
+                call.respondRedirect("/api/docs")
             }
         }
-        route("api/v1") {
+        route("api") {
             authRoutes()
             authenticate {
                 userRoutes()

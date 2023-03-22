@@ -20,7 +20,7 @@ fun Route.zoneRoutes() {
 
 fun Route.getAllZonesByTypeRoute(zoneController: ZoneController) {
     get {
-        val zoneType = call.request.queryParameters["zoneType"]
+        val zoneType = call.request.queryParameters["type"]
         zoneController.getAllZonesByType(zoneType)
             .onSuccess { zoneResponse -> call.respond(zoneResponse) }
             .onFailure { throwable ->

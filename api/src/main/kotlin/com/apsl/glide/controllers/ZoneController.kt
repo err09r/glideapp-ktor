@@ -1,7 +1,7 @@
 package com.apsl.glide.controllers
 
 import com.apsl.glide.database.dao.ZoneDao
-import com.apsl.glide.models.Zone
+import com.apsl.glide.models.ZoneDto
 
 class ZoneController(private val zoneDao: ZoneDao) {
 
@@ -9,10 +9,9 @@ class ZoneController(private val zoneDao: ZoneDao) {
         when (zoneType) {
             "riding" -> {
                 zoneDao.getAllRidingZones().map { entity ->
-                    Zone(
+                    ZoneDto(
                         id = entity.id,
                         title = entity.title,
-                        type = entity.type,
                         coordinates = entity.coordinates
                     )
                 }
@@ -20,10 +19,9 @@ class ZoneController(private val zoneDao: ZoneDao) {
 
             "no_parking" -> {
                 zoneDao.getAllNoParkingZones().map { entity ->
-                    Zone(
+                    ZoneDto(
                         id = entity.id,
                         title = entity.title,
-                        type = entity.type,
                         coordinates = entity.coordinates
                     )
                 }

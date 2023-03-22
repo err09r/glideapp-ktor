@@ -4,7 +4,7 @@ import com.apsl.glide.utils.UUID
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserResponse(
+data class UserDto(
     val id: UUID,
     val username: String,
     val firstName: String,
