@@ -1,10 +1,10 @@
 package com.apsl.glide.di
 
-import com.apsl.glide.security.JwtTokenService
-import com.apsl.glide.security.TokenConfig
-import com.apsl.glide.security.TokenService
-import com.apsl.glide.security.hashing.HashingService
-import com.apsl.glide.security.hashing.SHA256HashingService
+import com.apsl.glide.features.auth.security.JwtTokenService
+import com.apsl.glide.features.auth.security.TokenConfig
+import com.apsl.glide.features.auth.security.TokenService
+import com.apsl.glide.features.auth.security.hashing.HashingService
+import com.apsl.glide.features.auth.security.hashing.SHA256HashingService
 import io.ktor.server.config.ApplicationConfig
 import org.koin.dsl.module
 

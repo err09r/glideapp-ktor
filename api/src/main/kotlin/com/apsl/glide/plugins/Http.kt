@@ -12,6 +12,6 @@ fun Application.configureHttp() {
 //        permanentRedirect = true
 //    }
     routing {
-        swaggerUI(path = "api/v1/docs", swaggerFile = "openapi/documentation.yaml")
+        swaggerUI(path = "api/docs", swaggerFile = "openapi/documentation.yaml")
     }
 }

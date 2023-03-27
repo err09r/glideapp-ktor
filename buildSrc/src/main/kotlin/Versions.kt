@@ -11,5 +11,6 @@ object Versions {
     object Kotlin {
         const val datetime = "0.4.0"
         const val serialization = "1.5.0"
+        const val coroutines = "1.7.0-Beta"
     }
 }
