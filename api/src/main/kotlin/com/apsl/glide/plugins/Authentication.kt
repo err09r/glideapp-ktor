@@ -1,6 +1,6 @@
 package com.apsl.glide.plugins
 
-import com.apsl.glide.security.TokenConfig
+import com.apsl.glide.features.auth.security.TokenConfig
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.HttpStatusCode

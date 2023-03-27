@@ -1,7 +1,8 @@
 package com.apsl.glide.database
 
-import com.apsl.glide.database.tables.Users
-import com.apsl.glide.database.tables.Zones
+import com.apsl.glide.features.user.Users
+import com.apsl.glide.features.vehicle.Vehicles
+import com.apsl.glide.features.zone.Zones
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
@@ -16,8 +17,7 @@ object DatabaseFactory {
         val driverClassName = config.property("storage.driverClassName").getString()
         val database = Database.connect(jdbcUrl, driverClassName)
         transaction(database) {
-            SchemaUtils.create(Users)
-            SchemaUtils.create(Zones)
+            SchemaUtils.create(Users, Zones, Vehicles)
         }
     }
 

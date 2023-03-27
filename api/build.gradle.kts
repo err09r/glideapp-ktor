@@ -4,7 +4,7 @@ import io.ktor.plugin.features.DockerPortMappingProtocol
 plugins {
     application
     id("io.ktor.plugin") version Versions.ktor
-    kotlin("jvm") version Versions.kotlin
+    kotlin("jvm")
     kotlin("plugin.serialization") version Versions.kotlin
 }
 
@@ -22,19 +22,20 @@ ktor {
     docker {
         portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
     }
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+    fatJar {
+        archiveFileName.set("glide-ktor.jar")
     }
 }
 
-repositories {
-    mavenCentral()
+distributions {
+    main {
+        distributionBaseName.set(rootProject.name)
+    }
 }
 
 dependencies {
+    implementation(project(":vehicle-service"))
+
     implementation(Dependencies.Ktor.core)
     implementation(Dependencies.Ktor.netty)
     implementation(Dependencies.Ktor.contentNegotiation)
@@ -43,15 +44,16 @@ dependencies {
     implementation(Dependencies.Ktor.swagger)
     implementation(Dependencies.Ktor.auth)
     implementation(Dependencies.Ktor.authJwt)
+    implementation(Dependencies.Ktor.serialization)
 
     implementation(Dependencies.Exposed.core)
     implementation(Dependencies.Exposed.dao)
     implementation(Dependencies.Exposed.jdbc)
     implementation(Dependencies.Exposed.kotlinDatetime)
 
-    implementation(Dependencies.Ktor.serialization)
     implementation(Dependencies.Kotlin.serializationJson)
     implementation(Dependencies.Kotlin.datetime)
+    implementation(Dependencies.Kotlin.coroutines)
 
     implementation(Dependencies.Koin.ktor)
     implementation(Dependencies.Koin.logger)
@@ -65,15 +67,5 @@ dependencies {
 }
 
 tasks {
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = Config.jvmTarget
-            freeCompilerArgs += listOf(
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=kotlin.time.ExperimentalTime",
-                "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
-            )
-        }
-    }
+    create("stage").dependsOn("installDist")
 }

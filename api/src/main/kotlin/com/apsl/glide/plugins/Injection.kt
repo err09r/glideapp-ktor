@@ -1,5 +1,6 @@
 package com.apsl.glide.plugins
 
+import com.apsl.glide.di.appModule
 import com.apsl.glide.di.controllerModule
 import com.apsl.glide.di.daoModule
 import com.apsl.glide.di.securityModule
@@ -11,6 +12,6 @@ import org.koin.logger.slf4jLogger
 fun Application.configureInjection() {
     install(Koin) {
         slf4jLogger()
-        modules(daoModule, controllerModule, securityModule(environment.config))
+        modules(daoModule, controllerModule, appModule, securityModule(environment.config))
     }
 }
