@@ -13,6 +13,6 @@ dependencyResolutionManagement {
         maven { setUrl("https://jitpack.io") }
     }
 }
-rootProject.name = "glide-ktor"
+rootProject.name = "glideapp-ktor"
 include(":api")
 include(":vehicle-service")

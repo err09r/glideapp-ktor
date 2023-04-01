@@ -23,7 +23,7 @@ ktor {
         portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
     }
     fatJar {
-        archiveFileName.set("glide-ktor.jar")
+        archiveFileName.set("glideapp-ktor.jar")
     }
 }
 
