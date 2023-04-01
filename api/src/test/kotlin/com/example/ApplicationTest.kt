@@ -1,6 +1,6 @@
 package com.example
 
-import com.apsl.glide.plugins.configureRouting
+import com.apsl.glideapp.plugins.configureRouting
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode

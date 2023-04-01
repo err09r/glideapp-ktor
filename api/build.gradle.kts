@@ -23,7 +23,7 @@ ktor {
         portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
     }
     fatJar {
-        archiveFileName.set("glide-ktor.jar")
+        archiveFileName.set("glideapp-ktor.jar")
     }
 }
 
@@ -57,6 +57,9 @@ dependencies {
 
     implementation(Dependencies.Koin.ktor)
     implementation(Dependencies.Koin.logger)
+
+    implementation(Dependencies.glideAppCommonDto)
+    implementation(Dependencies.glideAppCommonUtil)
 
     implementation(Dependencies.postgresql)
     implementation(Dependencies.logback)
