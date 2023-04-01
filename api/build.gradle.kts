@@ -58,6 +58,9 @@ dependencies {
     implementation(Dependencies.Koin.ktor)
     implementation(Dependencies.Koin.logger)
 
+    implementation(Dependencies.glideAppCommonDto)
+    implementation(Dependencies.glideAppCommonUtil)
+
     implementation(Dependencies.postgresql)
     implementation(Dependencies.logback)
     implementation(Dependencies.commonsCodec)
