@@ -1,6 +1,6 @@
 data class ZoneInfo(
     val code: Int,
     val title: String,
-    val type: ZoneType,
-    val coordinates: List<Point>,
+    val type: Int,
+    val coordinates: List<Pair<Double, Double>>,
 )

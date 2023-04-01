@@ -1,5 +1,7 @@
 object Dependencies {
 
+    const val glideAppCommonDto = "com.github.err09r.glideapp-common:dto:${Versions.glideAppCommon}"
+    const val glideAppCommonUtil = "com.github.err09r.glideapp-common:util:${Versions.glideAppCommon}"
     const val postgresql = "org.postgresql:postgresql:${Versions.postgresql}"
     const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
     const val commonsCodec = "commons-codec:commons-codec:${Versions.commonsCodec}"
@@ -18,10 +20,11 @@ object Dependencies {
     }
 
     object Kotlin {
-        const val serializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.Kotlin.serialization}"
         const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.Kotlin.datetime}"
         const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.Kotlin.coroutines}"
         const val junit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
+        const val serializationJson =
+            "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.Kotlin.serialization}"
     }
 
     object Exposed {
