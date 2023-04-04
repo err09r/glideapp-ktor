@@ -45,6 +45,7 @@ dependencies {
     implementation(Dependencies.Ktor.auth)
     implementation(Dependencies.Ktor.authJwt)
     implementation(Dependencies.Ktor.serialization)
+    implementation(Dependencies.Ktor.websockets)
 
     implementation(Dependencies.Exposed.core)
     implementation(Dependencies.Exposed.dao)

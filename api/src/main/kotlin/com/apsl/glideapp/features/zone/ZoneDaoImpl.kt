@@ -9,6 +9,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 
 class ZoneDaoImpl : ZoneDao {
 
@@ -21,6 +22,10 @@ class ZoneDaoImpl : ZoneDao {
             createdAt = this[Zones.createdAt],
             updateAt = this[Zones.updatedAt]
         )
+    }
+
+    override suspend fun getAllZones(): List<ZoneEntity> = query {
+        Zones.selectAll().map { it.toZoneEntity() }
     }
 
     override suspend fun getAllRidingZones(): List<ZoneEntity> = query {

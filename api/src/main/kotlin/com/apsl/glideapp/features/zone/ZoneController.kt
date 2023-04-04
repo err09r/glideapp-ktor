@@ -1,5 +1,7 @@
 package com.apsl.glideapp.features.zone
 
+import com.apsl.glideapp.common.dto.ZoneDto
+
 class ZoneController(private val zoneDao: ZoneDao) {
 
     suspend fun getAllZonesByType(zoneType: String?) = runCatching {

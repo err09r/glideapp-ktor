@@ -1,6 +1,7 @@
 package com.apsl.glideapp.plugins
 
 import com.apsl.glideapp.features.auth.authRoutes
+import com.apsl.glideapp.features.map.mapRoutes
 import com.apsl.glideapp.features.user.userRoutes
 import com.apsl.glideapp.features.vehicle.vehicleRoutes
 import com.apsl.glideapp.features.zone.zoneRoutes
@@ -25,6 +26,7 @@ fun Application.configureRouting() {
                 zoneRoutes()
                 vehicleRoutes()
             }
+            mapRoutes()
         }
     }
 }

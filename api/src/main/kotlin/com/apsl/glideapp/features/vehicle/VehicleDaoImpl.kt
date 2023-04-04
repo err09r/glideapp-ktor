@@ -10,6 +10,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
 class VehicleDaoImpl : VehicleDao {
@@ -25,6 +26,10 @@ class VehicleDaoImpl : VehicleDao {
             createdAt = this[Vehicles.createdAt],
             updateAt = this[Vehicles.updatedAt]
         )
+    }
+
+    override suspend fun getAllVehicles(): List<VehicleEntity> = query {
+        Vehicles.selectAll().map { it.toVehicleEntity() }
     }
 
     override suspend fun getAllVehiclesByZoneCode(code: Int): List<VehicleEntity> = query {
