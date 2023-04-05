@@ -3,11 +3,13 @@ package com.apsl.glideapp.features.vehicle
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
+import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class VehicleEntity(
+    val id: UUID,
     val code: Int,
     val zoneCode: Int,
     val batteryCharge: Int,

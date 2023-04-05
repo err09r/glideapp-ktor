@@ -1,7 +1,8 @@
 package com.apsl.glideapp.features.auth
 
-import com.apsl.glideapp.common.dto.AuthRequest
 import com.apsl.glideapp.common.dto.AuthResponse
+import com.apsl.glideapp.common.dto.LoginRequest
+import com.apsl.glideapp.common.dto.RegisterRequest
 import com.apsl.glideapp.features.auth.security.TokenClaim
 import com.apsl.glideapp.features.auth.security.TokenService
 import com.apsl.glideapp.features.auth.security.hashing.HashingService
@@ -16,7 +17,7 @@ class AuthController(
     private val tokenService: TokenService
 ) {
 
-    suspend fun register(request: AuthRequest?) = runCatching {
+    suspend fun register(request: RegisterRequest?) = runCatching {
         if (request == null) {
             throw IllegalArgumentException()
         }
@@ -49,7 +50,7 @@ class AuthController(
         AuthResponse(token = token)
     }
 
-    suspend fun login(request: AuthRequest?) = runCatching {
+    suspend fun login(request: LoginRequest?) = runCatching {
         if (request == null) {
             throw IllegalArgumentException()
         }

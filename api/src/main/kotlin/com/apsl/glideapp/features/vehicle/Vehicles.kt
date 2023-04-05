@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object Vehicles : Table() {
+    val id = uuid("id").autoGenerate().autoGenerate()
     val code = integer("code").uniqueIndex()
     val zoneCode = reference("zoneCode", Zones.code)
     val batteryCharge = integer("batteryCharge")
@@ -16,5 +17,5 @@ object Vehicles : Table() {
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")
 
-    override val primaryKey = PrimaryKey(code)
+    override val primaryKey = PrimaryKey(id)
 }

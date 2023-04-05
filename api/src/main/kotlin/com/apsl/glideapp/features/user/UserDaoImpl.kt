@@ -5,11 +5,8 @@ import com.apsl.glideapp.database.DatabaseFactory.query
 import java.util.UUID
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
 class UserDaoImpl : UserDao {
@@ -25,10 +22,6 @@ class UserDaoImpl : UserDao {
             createdAt = this[Users.createdAt],
             updateAt = this[Users.updatedAt]
         )
-    }
-
-    override suspend fun getAllUsers(): List<UserEntity> = query {
-        Users.selectAll().map { it.toUserEntity() }
     }
 
     override suspend fun getUserByUsername(username: String): UserEntity? = query {
@@ -76,9 +69,5 @@ class UserDaoImpl : UserDao {
             it[Users.lastName] = lastName
             it[Users.updatedAt] = LocalDateTime.now()
         } > 0
-    }
-
-    override suspend fun deleteUser(id: UUID): Boolean = query {
-        Users.deleteWhere { Users.id eq id } > 0
     }
 }

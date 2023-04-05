@@ -17,6 +17,7 @@ object Dependencies {
         const val authJwt = "io.ktor:ktor-server-auth-jwt:${Versions.ktor}"
         const val serverTests = "io.ktor:ktor-server-tests-jvm:${Versions.ktor}"
         const val serialization = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
+        const val websockets = "io.ktor:ktor-server-websockets:${Versions.ktor}"
     }
 
     object Kotlin {

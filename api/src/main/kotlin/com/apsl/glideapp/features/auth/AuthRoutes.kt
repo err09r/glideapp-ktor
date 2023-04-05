@@ -1,6 +1,7 @@
 package com.apsl.glideapp.features.auth
 
-import com.apsl.glideapp.common.dto.AuthRequest
+import com.apsl.glideapp.common.dto.LoginRequest
+import com.apsl.glideapp.common.dto.RegisterRequest
 import com.apsl.glideapp.utils.UserAlreadyExistsException
 import com.apsl.glideapp.utils.UserNotFoundException
 import io.ktor.http.HttpStatusCode
@@ -20,7 +21,7 @@ fun Route.authRoutes() {
 
 private fun Route.registerRoute(authController: AuthController) {
     post("register") {
-        val request = call.receiveNullable<AuthRequest>()
+        val request = call.receiveNullable<RegisterRequest>()
         authController.register(request = request)
             .onSuccess { authResponse -> call.respond(authResponse) }
             .onFailure { throwable ->
@@ -38,7 +39,7 @@ private fun Route.registerRoute(authController: AuthController) {
 
 private fun Route.loginRoute(authController: AuthController) {
     post("login") {
-        val request = call.receiveNullable<AuthRequest>()
+        val request = call.receiveNullable<LoginRequest>()
         authController.login(request = request)
             .onSuccess { authResponse -> call.respond(authResponse) }
             .onFailure { throwable ->

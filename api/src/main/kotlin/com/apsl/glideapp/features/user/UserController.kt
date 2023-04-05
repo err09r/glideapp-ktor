@@ -12,7 +12,7 @@ class UserController(private val userDao: UserDao) {
         }
         val entity = userDao.getUserById(UUID.fromString(id)) ?: throw UserNotFoundException()
         UserDto(
-            id = entity.id,
+            id = entity.id.toString(),
             username = entity.username,
             firstName = entity.firstName,
             lastName = entity.lastName

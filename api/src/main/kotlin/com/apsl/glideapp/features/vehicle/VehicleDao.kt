@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 
 interface VehicleDao {
+    suspend fun getAllVehicles(): List<VehicleEntity>
     suspend fun getAllVehiclesByZoneCode(code: Int): List<VehicleEntity>
     suspend fun getAllAvailableVehicles(): List<VehicleEntity>
     suspend fun getVehicleByCode(code: Int): VehicleEntity?

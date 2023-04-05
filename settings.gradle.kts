@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "glideapp-ktor"
 include(":api")
-include(":vehicle-service")
