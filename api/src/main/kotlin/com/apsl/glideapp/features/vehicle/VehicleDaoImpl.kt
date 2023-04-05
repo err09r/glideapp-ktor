@@ -17,6 +17,7 @@ class VehicleDaoImpl : VehicleDao {
 
     private fun ResultRow.toVehicleEntity(): VehicleEntity {
         return VehicleEntity(
+            id = this[Vehicles.id],
             code = this[Vehicles.code],
             zoneCode = this[Vehicles.zoneCode],
             batteryCharge = this[Vehicles.batteryCharge],

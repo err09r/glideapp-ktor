@@ -19,12 +19,13 @@ application {
 }
 
 ktor {
-    docker {
-        portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
-    }
     fatJar {
         archiveFileName.set("glideapp-ktor.jar")
     }
+    docker {
+        portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
+    }
+
 }
 
 distributions {
@@ -34,8 +35,6 @@ distributions {
 }
 
 dependencies {
-    implementation(project(":vehicle-service"))
-
     implementation(Dependencies.Ktor.core)
     implementation(Dependencies.Ktor.netty)
     implementation(Dependencies.Ktor.contentNegotiation)
