@@ -50,7 +50,8 @@ class MapController(
     }
 
     private infix fun Coordinates.within(bounds: Pair<Coordinates, Coordinates>): Boolean {
+        //54.54 17.15 -> 54.37 16.87
         return this.latitude in bounds.second.latitude..bounds.first.latitude &&
-                this.longitude in bounds.first.longitude..bounds.second.longitude
+                this.longitude in bounds.second.longitude..bounds.first.longitude
     }
 }

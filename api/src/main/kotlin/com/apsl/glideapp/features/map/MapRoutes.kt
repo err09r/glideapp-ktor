@@ -13,8 +13,13 @@ fun Route.mapRoutes() {
     val mapController: MapController by inject()
     webSocket("map") {
         incoming.consumeEach {
-            val coordinatesBounds = receiveDeserialized<CoordinatesBounds>()
-            mapController.observeMapStateWithinZoneBounds(coordinatesBounds).collectLatest(::sendSerialized)
+            val coordinatesBounds = runCatching {
+                receiveDeserialized<CoordinatesBounds>()
+            }.getOrNull()
+
+            if (coordinatesBounds != null) {
+                mapController.observeMapStateWithinZoneBounds(coordinatesBounds).collectLatest(::sendSerialized)
+            }
         }
     }
 }
