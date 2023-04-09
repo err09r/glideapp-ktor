@@ -10,6 +10,7 @@ import com.apsl.glideapp.features.vehicle.VehicleService
 import com.apsl.glideapp.features.zone.ZoneDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
@@ -46,11 +47,12 @@ class MapController(
                 }
 
             MapStateDto(ridingZones = ridingZones, availableVehicles = availableVehicles)
-        }.flowOn(Dispatchers.IO)
+        }
+            .flowOn(Dispatchers.IO)
+            .distinctUntilChanged()
     }
 
     private infix fun Coordinates.within(bounds: Pair<Coordinates, Coordinates>): Boolean {
-        //54.54 17.15 -> 54.37 16.87
         return this.latitude in bounds.second.latitude..bounds.first.latitude &&
                 this.longitude in bounds.second.longitude..bounds.first.longitude
     }
