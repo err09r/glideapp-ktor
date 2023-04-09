@@ -1,5 +1,6 @@
 package com.apsl.glideapp.features.map
 
+import CoordinatesBounds
 import com.apsl.glideapp.common.dto.MapStateDto
 import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.dto.ZoneDto
@@ -18,9 +19,9 @@ class MapController(
     private val vehicleService: VehicleService
 ) {
 
-    fun observeMapStateWithinZoneBounds(zoneBoundsDto: ZoneBoundsDto): Flow<MapStateDto> {
+    fun observeMapStateWithinZoneBounds(coordinatesBounds: CoordinatesBounds): Flow<MapStateDto> {
         return vehicleService.vehicleListChangesFlow.map {
-            val zoneBounds = zoneBoundsDto.topLeftBound to zoneBoundsDto.bottomLeftBound
+            val zoneBounds = coordinatesBounds.northeastBound to coordinatesBounds.southwestBound
             val availableVehicles = vehicleDao.getAllAvailableVehicles()
                 .filter { it.coordinates within zoneBounds }
                 .map { entity ->

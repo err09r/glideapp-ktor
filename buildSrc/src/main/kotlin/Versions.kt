@@ -2,7 +2,7 @@ object Versions {
     const val kotlin = "1.8.20"
     const val ktor = "2.2.4"
     const val gradleVersionsPlugin = "0.46.0"
-    const val glideAppCommon = "0.0.5"
+    const val glideAppCommon = "0.0.6"
     const val koin = "3.4.0"
     const val exposed = "0.41.1"
     const val postgresql = "42.6.0"
