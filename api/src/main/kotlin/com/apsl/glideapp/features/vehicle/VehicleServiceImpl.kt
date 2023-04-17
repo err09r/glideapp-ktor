@@ -5,17 +5,22 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.utils.isInsideOfPolygon
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 
 class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao: ZoneDao) : VehicleService {
 
-    override val vehicleListChangesFlow: Flow<Unit> = flow {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
+    override val vehicleListChangesFlow = flow {
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
             val newVehicles = vehicles.shuffled().take(vehicles.size / 10)
@@ -33,9 +38,12 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
             }
 
             emit(Unit)
-            delay(Random.nextLong(5000, 20000))
+//            delay(Random.nextLong(5000, 20000))
+            delay(5.seconds)
         }
-    }.flowOn(Dispatchers.IO)
+    }
+        .flowOn(Dispatchers.IO)
+        .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly)
 
     private fun generateCoordinatesWithinZoneBounds(zoneBounds: List<Coordinates>): Coordinates {
         val leftmostPoint = zoneBounds.minOf { it.longitude }

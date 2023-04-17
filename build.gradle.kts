@@ -27,7 +27,7 @@ allprojects {
 tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
     rejectVersionIf {
         arrayOf("alpha", "beta", "rc", "dev").any {
-            candidate.version.lowercase().contains(it, ignoreCase = true)
+            candidate.version.contains(it, ignoreCase = true)
         }
     }
     checkForGradleUpdate = true

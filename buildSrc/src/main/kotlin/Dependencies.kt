@@ -1,5 +1,4 @@
 object Dependencies {
-
     const val glideAppCommonDto = "com.github.err09r.glideapp-common:dto:${Versions.glideAppCommon}"
     const val glideAppCommonUtil = "com.github.err09r.glideapp-common:util:${Versions.glideAppCommon}"
     const val postgresql = "org.postgresql:postgresql:${Versions.postgresql}"
