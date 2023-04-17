@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.utils.isInsideOfPolygon
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -37,7 +38,8 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
             }
 
             emit(Unit)
-            delay(Random.nextLong(5000, 20000))
+//            delay(Random.nextLong(5000, 20000))
+            delay(5.seconds)
         }
     }
         .flowOn(Dispatchers.IO)
