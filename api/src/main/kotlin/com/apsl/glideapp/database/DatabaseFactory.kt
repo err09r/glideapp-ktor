@@ -1,5 +1,6 @@
 package com.apsl.glideapp.database
 
+import com.apsl.glideapp.features.ride.Rides
 import com.apsl.glideapp.features.user.Users
 import com.apsl.glideapp.features.vehicle.Vehicles
 import com.apsl.glideapp.features.zone.Zones
@@ -17,7 +18,7 @@ object DatabaseFactory {
         val driverClassName = config.property("storage.driverClassName").getString()
         val database = Database.connect(jdbcUrl, driverClassName)
         transaction(database) {
-            SchemaUtils.create(Users, Zones, Vehicles)
+            SchemaUtils.create(Users, Zones, Vehicles, Rides)
         }
     }
 

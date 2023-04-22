@@ -26,10 +26,10 @@ class RideController(private val rideDao: RideDao) {
     }
 
     private suspend fun startRide(userId: UUID, address: String, dateTime: LocalDateTime): String {
-        if (rideDao.getUserHasActiveRides(userId)) {
-            //TODO: Send message that user already has active ride
-            error("")
-        }
+//        if (rideDao.getUserHasActiveRides(userId)) {
+        //TODO: Send message that user already has active ride
+//            error("")
+//        }
 
         val rideEntity =
             rideDao.insertRide(userId = userId, startAddress = address, startDateTime = dateTime) ?: error("")
