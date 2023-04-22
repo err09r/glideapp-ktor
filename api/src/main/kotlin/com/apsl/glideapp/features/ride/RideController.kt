@@ -13,7 +13,7 @@ class RideController(private val rideDao: RideDao) {
         when (action) {
             is RideAction.Start -> {
                 val rideId = startRide(userUuid, action.address, action.dateTime)
-                RideStateDto.Started(rideId = rideId)
+                RideStateDto.Started(rideId = rideId, action.dateTime)
             }
 
             is RideAction.Pause -> RideStateDto.Paused
