@@ -1,6 +1,6 @@
 package com.apsl.glideapp.features.ride
 
-import com.apsl.glideapp.common.dto.RideActionResponse
+import com.apsl.glideapp.common.dto.RideStateDto
 import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.util.UUID
@@ -13,14 +13,14 @@ class RideController(private val rideDao: RideDao) {
         when (action) {
             is RideAction.Start -> {
                 val rideId = startRide(userUuid, action.address, action.dateTime)
-                RideActionResponse.Started(rideId = rideId)
+                RideStateDto.Started(rideId = rideId)
             }
 
-            is RideAction.Pause -> RideActionResponse.Paused
+            is RideAction.Pause -> RideStateDto.Paused
 
             is RideAction.Finish -> {
                 finishRide(rideId = action.rideId, address = action.address, dateTime = action.dateTime)
-                RideActionResponse.Finished
+                RideStateDto.Finished
             }
         }
     }
