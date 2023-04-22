@@ -23,8 +23,8 @@ fun Route.userRoutes() {
 
 private fun Route.getUserByIdRoute(userController: UserController) {
     get("{id?}") {
-        val id = call.parameters["id"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
-        userController.getUserById(id)
+        val userId = call.parameters["id"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        userController.getUserById(userId)
             .onSuccess { userDto -> call.respond(userDto) }
             .onFailure { throwable ->
                 call.respondNullable(

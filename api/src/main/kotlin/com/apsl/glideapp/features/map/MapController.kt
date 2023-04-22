@@ -1,10 +1,10 @@
 package com.apsl.glideapp.features.map
 
-import CoordinatesBounds
 import com.apsl.glideapp.common.dto.MapStateDto
 import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.dto.ZoneDto
 import com.apsl.glideapp.common.models.Coordinates
+import com.apsl.glideapp.common.models.CoordinatesBounds
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
 import com.apsl.glideapp.features.zone.ZoneDao

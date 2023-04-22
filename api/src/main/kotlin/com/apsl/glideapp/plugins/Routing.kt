@@ -2,6 +2,7 @@ package com.apsl.glideapp.plugins
 
 import com.apsl.glideapp.features.auth.authRoutes
 import com.apsl.glideapp.features.map.mapRoutes
+import com.apsl.glideapp.features.ride.rideRoutes
 import com.apsl.glideapp.features.user.userRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -22,7 +23,10 @@ fun Application.configureRouting() {
             authenticate {
                 userRoutes()
             }
+
+            //TODO: move to 'authenticate' block when debugging is finished
             mapRoutes()
+            rideRoutes()
         }
     }
 }
