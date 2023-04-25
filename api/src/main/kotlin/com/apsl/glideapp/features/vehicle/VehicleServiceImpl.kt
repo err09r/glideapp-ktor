@@ -30,7 +30,7 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
 
             newVehicles.forEach {
                 vehicleDao.updateVehicle(
-                    code = it.code,
+                    id = it.id,
                     batteryCharge = Random.nextInt(40, 101),
                     status = vehicleStatuses.random(),
                     coordinates = generateCoordinatesWithinZoneBounds(ridingZones[it.zoneCode - 1].coordinates)
@@ -38,8 +38,8 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
             }
 
             emit(Unit)
-//            delay(Random.nextLong(5000, 20000))
-            delay(5.seconds)
+//            delay(Random.nextInt(5, 20).seconds)
+            delay(15.seconds)
         }
     }
         .flowOn(Dispatchers.IO)

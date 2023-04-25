@@ -6,8 +6,9 @@ import io.ktor.server.auth.principal
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
-import io.ktor.util.logging.KtorSimpleLogger
+import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -26,13 +27,12 @@ fun Route.rideRoutes() {
             val userId =
                 call.parameters["id"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
 
-            KtorSimpleLogger("rideWs").error("action: $action || userId: $userId")
-
             if (action != null && userId != null) {
                 rideController.handleRideAction(action = action, userId = userId)
                     .onSuccess { sendSerialized(it) }
                     .onFailure { throwable ->
                         //TODO: Handle closing reasons depending on exception type
+                        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                     }
             }
         }

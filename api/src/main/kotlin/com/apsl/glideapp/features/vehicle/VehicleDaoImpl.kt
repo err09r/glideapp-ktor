@@ -3,6 +3,7 @@ package com.apsl.glideapp.features.vehicle
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
+import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
 import com.apsl.glideapp.database.converters.CoordinatesConverter
@@ -45,9 +46,9 @@ class VehicleDaoImpl : VehicleDao {
             .map { it.toVehicleEntity() }
     }
 
-    override suspend fun getVehicleByCode(code: Int): VehicleEntity? = query {
+    override suspend fun getVehicleById(id: UUID): VehicleEntity? = query {
         Vehicles
-            .select { Vehicles.code eq code }
+            .select { Vehicles.id eq id }
             .map { it.toVehicleEntity() }
             .singleOrNull()
     }
@@ -74,15 +75,22 @@ class VehicleDaoImpl : VehicleDao {
     }
 
     override suspend fun updateVehicle(
-        code: Int,
+        id: UUID,
         batteryCharge: Int,
         status: VehicleStatus,
         coordinates: Coordinates
     ): Boolean = query {
-        Vehicles.update({ Vehicles.code eq code }) {
+        Vehicles.update({ Vehicles.id eq id }) {
             it[Vehicles.batteryCharge] = batteryCharge
             it[Vehicles.status] = status
             it[Vehicles.coordinates] = CoordinatesConverter.fromValue(coordinates)
+            it[Vehicles.updatedAt] = LocalDateTime.now()
+        } > 0
+    }
+
+    override suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean = query {
+        Vehicles.update({ Vehicles.id eq id }) {
+            it[Vehicles.status] = status
             it[Vehicles.updatedAt] = LocalDateTime.now()
         } > 0
     }
