@@ -1,5 +1,5 @@
 object Versions {
-    const val kotlin = "1.8.20"
+    const val kotlin = "1.8.21"
     const val ktor = "2.3.0"
     const val gradleVersionsPlugin = "0.46.0"
     const val glideAppCommon = "0.0.11"
@@ -12,6 +12,6 @@ object Versions {
     object Kotlin {
         const val datetime = "0.4.0"
         const val serialization = "1.5.0"
-        const val coroutines = "1.6.4"
+        const val coroutines = "1.7.0"
     }
 }
