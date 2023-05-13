@@ -13,27 +13,27 @@ class UserDaoImpl : UserDao {
 
     private fun ResultRow.toUserEntity(): UserEntity {
         return UserEntity(
-            id = this[Users.id],
-            username = this[Users.username],
-            password = this[Users.password],
-            salt = this[Users.salt],
-            firstName = this[Users.firstName],
-            lastName = this[Users.lastName],
-            createdAt = this[Users.createdAt],
-            updateAt = this[Users.updatedAt]
+            id = this[UsersTable.id],
+            username = this[UsersTable.username],
+            password = this[UsersTable.password],
+            salt = this[UsersTable.salt],
+            firstName = this[UsersTable.firstName],
+            lastName = this[UsersTable.lastName],
+            createdAt = this[UsersTable.createdAt],
+            updateAt = this[UsersTable.updatedAt]
         )
     }
 
     override suspend fun getUserByUsername(username: String): UserEntity? = query {
-        Users
-            .select { Users.username eq username }
+        UsersTable
+            .select { UsersTable.username eq username }
             .map { it.toUserEntity() }
             .singleOrNull()
     }
 
     override suspend fun getUserById(id: UUID): UserEntity? = query {
-        Users
-            .select { Users.id eq id }
+        UsersTable
+            .select { UsersTable.id eq id }
             .map { it.toUserEntity() }
             .singleOrNull()
     }
@@ -45,14 +45,14 @@ class UserDaoImpl : UserDao {
         firstName: String,
         lastName: String
     ): UserEntity? = query {
-        val insertStatement = Users.insert {
-            it[Users.username] = username
-            it[Users.password] = password
-            it[Users.salt] = salt
-            it[Users.firstName] = firstName
-            it[Users.lastName] = lastName
-            it[Users.createdAt] = LocalDateTime.now()
-            it[Users.updatedAt] = LocalDateTime.now()
+        val insertStatement = UsersTable.insert {
+            it[UsersTable.username] = username
+            it[UsersTable.password] = password
+            it[UsersTable.salt] = salt
+            it[UsersTable.firstName] = firstName
+            it[UsersTable.lastName] = lastName
+            it[UsersTable.createdAt] = LocalDateTime.now()
+            it[UsersTable.updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toUserEntity()
     }
@@ -63,11 +63,11 @@ class UserDaoImpl : UserDao {
         firstName: String,
         lastName: String
     ): Boolean = query {
-        Users.update({ Users.id eq id }) {
-            it[Users.username] = username
-            it[Users.firstName] = firstName
-            it[Users.lastName] = lastName
-            it[Users.updatedAt] = LocalDateTime.now()
+        UsersTable.update({ UsersTable.id eq id }) {
+            it[UsersTable.username] = username
+            it[UsersTable.firstName] = firstName
+            it[UsersTable.lastName] = lastName
+            it[UsersTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 }

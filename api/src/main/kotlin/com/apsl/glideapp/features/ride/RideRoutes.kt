@@ -10,7 +10,6 @@ import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
@@ -34,6 +33,8 @@ fun Route.rideRoutes() {
                         //TODO: Handle closing reasons depending on exception type
                         close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                     }
+            } else {
+                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
             }
         }
     }

@@ -10,5 +10,5 @@ val controllerModule = module {
     single { UserController(get()) }
     single { AuthController(get(), get(), get()) }
     single { MapController(get(), get(), get()) }
-    single { RideController(get(), get()) }
+    single { RideController(get(), get(), get()) }
 }

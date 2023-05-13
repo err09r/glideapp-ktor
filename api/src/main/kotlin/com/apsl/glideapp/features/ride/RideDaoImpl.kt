@@ -4,7 +4,7 @@ import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
-import com.apsl.glideapp.features.ride.Rides.userId
+import com.apsl.glideapp.features.ride.RidesTable.userId
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
@@ -16,21 +16,21 @@ class RideDaoImpl : RideDao {
 
     private fun ResultRow.toRideEntity(): RideEntity {
         return RideEntity(
-            id = this[Rides.id],
-            userId = this[Rides.userId],
-            startAddress = this[Rides.startAddress],
-            finishAddress = this[Rides.finishAddress],
-            startDateTime = this[Rides.startDateTime],
-            finishDateTime = this[Rides.finishDateTime],
-            status = this[Rides.status],
-            createdAt = this[Rides.createdAt],
-            updateAt = this[Rides.updatedAt]
+            id = this[RidesTable.id],
+            userId = this[RidesTable.userId],
+            startAddress = this[RidesTable.startAddress],
+            finishAddress = this[RidesTable.finishAddress],
+            startDateTime = this[RidesTable.startDateTime],
+            finishDateTime = this[RidesTable.finishDateTime],
+            status = this[RidesTable.status],
+            createdAt = this[RidesTable.createdAt],
+            updateAt = this[RidesTable.updatedAt]
         )
     }
 
     override suspend fun getUserHasActiveRides(userId: UUID): Boolean = query {
-        Rides
-            .select { (Rides.userId eq userId) and (Rides.status neq RideStatus.Finished) }
+        RidesTable
+            .select { (RidesTable.userId eq userId) and (RidesTable.status neq RideStatus.Finished) }
             .count() > 0
     }
 
@@ -39,13 +39,13 @@ class RideDaoImpl : RideDao {
         startAddress: String,
         startDateTime: LocalDateTime
     ): RideEntity? = query {
-        val insertStatement = Rides.insert {
-            it[Rides.userId] = userId
-            it[Rides.startAddress] = startAddress
-            it[Rides.startDateTime] = startDateTime
-            it[Rides.status] = RideStatus.Started
-            it[Rides.createdAt] = LocalDateTime.now()
-            it[Rides.updatedAt] = LocalDateTime.now()
+        val insertStatement = RidesTable.insert {
+            it[RidesTable.userId] = userId
+            it[RidesTable.startAddress] = startAddress
+            it[RidesTable.startDateTime] = startDateTime
+            it[RidesTable.status] = RideStatus.Started
+            it[RidesTable.createdAt] = LocalDateTime.now()
+            it[RidesTable.updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toRideEntity()
     }
@@ -56,11 +56,11 @@ class RideDaoImpl : RideDao {
         finishDateTime: LocalDateTime,
         status: RideStatus
     ): Boolean = query {
-        Rides.update({ Rides.userId eq userId }) {
-            it[Rides.finishAddress] = finishAddress
-            it[Rides.finishDateTime] = finishDateTime
-            it[Rides.status] = status
-            it[Rides.updatedAt] = LocalDateTime.now()
+        RidesTable.update({ RidesTable.userId eq userId }) {
+            it[RidesTable.finishAddress] = finishAddress
+            it[RidesTable.finishDateTime] = finishDateTime
+            it[RidesTable.status] = status
+            it[RidesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 }

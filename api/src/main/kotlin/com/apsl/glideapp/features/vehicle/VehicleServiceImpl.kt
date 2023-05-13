@@ -21,6 +21,7 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     override val vehicleListChangesFlow = flow {
+        delay(15.seconds)
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
             val newVehicles = vehicles.shuffled().take(vehicles.size / 10)

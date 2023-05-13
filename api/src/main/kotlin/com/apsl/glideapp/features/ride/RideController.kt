@@ -1,14 +1,20 @@
 package com.apsl.glideapp.features.ride
 
-import com.apsl.glideapp.common.dto.RideStateDto
+import com.apsl.glideapp.common.dto.RideEventDto
+import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.util.UUID
+import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import kotlinx.datetime.LocalDateTime
 
-class RideController(private val rideDao: RideDao, private val vehicleDao: VehicleDao) {
+class RideController(
+    private val rideDao: RideDao,
+    private val rideCoordinatesDao: RideCoordinatesDao,
+    private val vehicleDao: VehicleDao
+) {
 
     suspend fun handleRideAction(action: RideAction, userId: String) = runCatching {
         when (action) {
@@ -19,10 +25,13 @@ class RideController(private val rideDao: RideDao, private val vehicleDao: Vehic
                     address = action.address,
                     dateTime = action.dateTime
                 )
-                RideStateDto.Started(rideId = rideId, dateTime = action.dateTime)
+                RideEventDto.Started(rideId = rideId, dateTime = action.dateTime)
             }
 
-            is RideAction.Pause -> RideStateDto.Paused
+            is RideAction.UpdateRoute -> {
+                val route = updateRoute(rideId = action.rideId, coordinates = action.coordinates)
+                RideEventDto.RouteUpdated(currentRoute = route)
+            }
 
             is RideAction.Finish -> {
                 finishRide(
@@ -31,7 +40,7 @@ class RideController(private val rideDao: RideDao, private val vehicleDao: Vehic
                     address = action.address,
                     dateTime = action.dateTime
                 )
-                RideStateDto.Finished
+                RideEventDto.Finished
             }
         }
     }
@@ -54,6 +63,18 @@ class RideController(private val rideDao: RideDao, private val vehicleDao: Vehic
         }
 
         return rideEntity.id.toString()
+    }
+
+    private suspend fun updateRoute(rideId: String, coordinates: Coordinates): List<Coordinates> {
+        val rideUuid = UUID.fromString(rideId)
+        rideCoordinatesDao.insertRideCoordinates(
+            rideId = rideUuid,
+            latitude = coordinates.latitude,
+            longitude = coordinates.longitude
+        )
+        return rideCoordinatesDao.getAllRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
+            Coordinates(latitude = entity.latitude, longitude = entity.longitude)
+        }
     }
 
     private suspend fun finishRide(rideId: String, vehicleId: String, address: String, dateTime: LocalDateTime) {
