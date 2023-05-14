@@ -8,6 +8,7 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
+import com.apsl.glideapp.utils.calculateDistance
 import kotlinx.datetime.LocalDateTime
 
 class RideController(
@@ -72,14 +73,27 @@ class RideController(
             latitude = coordinates.latitude,
             longitude = coordinates.longitude
         )
+
+        val latestSavedCoordinates = rideCoordinatesDao.getLatestRideCoordinatesByRideId(rideUuid)?.let {
+            Coordinates(latitude = it.latitude, longitude = it.longitude)
+        }
+
+        if (latestSavedCoordinates != null) {
+            val newDistance = calculateDistance(listOf(latestSavedCoordinates, coordinates))
+            rideDao.updateRide(id = rideUuid, newDistance = newDistance)
+        }
+
         return rideCoordinatesDao.getAllRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
             Coordinates(latitude = entity.latitude, longitude = entity.longitude)
         }
     }
 
     private suspend fun finishRide(rideId: String, vehicleId: String, address: String, dateTime: LocalDateTime) {
+        val rideUuid = UUID.fromString(rideId)
+        val vehicleUuid = UUID.fromString(vehicleId)
+
         val wasUpdated = rideDao.updateRide(
-            id = UUID.fromString(rideId),
+            id = rideUuid,
             finishAddress = address,
             finishDateTime = dateTime,
             status = RideStatus.Finished
@@ -89,9 +103,7 @@ class RideController(
             error("")
         }
 
-        val vehicleUuid = UUID.fromString(vehicleId)
-
         //TODO: Add logic to change 'batteryCharge' and 'vehicleStatus' depending on ride distance etc.
-        vehicleDao.updateVehicle(id = UUID.fromString(vehicleId), status = VehicleStatus.Available)
+        vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.Available)
     }
 }

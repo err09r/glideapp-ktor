@@ -12,6 +12,7 @@ object RidesTable : Table("rides") {
     val finishAddress = text("finishAddress").nullable().default(null)
     val startDateTime = datetime("startDateTime")
     val finishDateTime = datetime("finishDateTime").nullable().default(null)
+    val distance = double("distance")
     val status = enumeration<RideStatus>("status")
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")

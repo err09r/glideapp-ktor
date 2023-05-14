@@ -4,7 +4,6 @@ import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
-import com.apsl.glideapp.features.ride.RidesTable.userId
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
@@ -22,6 +21,7 @@ class RideDaoImpl : RideDao {
             finishAddress = this[RidesTable.finishAddress],
             startDateTime = this[RidesTable.startDateTime],
             finishDateTime = this[RidesTable.finishDateTime],
+            distance = this[RidesTable.distance],
             status = this[RidesTable.status],
             createdAt = this[RidesTable.createdAt],
             updateAt = this[RidesTable.updatedAt]
@@ -50,13 +50,20 @@ class RideDaoImpl : RideDao {
         insertStatement.resultedValues?.singleOrNull()?.toRideEntity()
     }
 
+    override suspend fun updateRide(id: UUID, newDistance: Double): Boolean = query {
+        RidesTable.update({ RidesTable.id eq id }) {
+            it[RidesTable.distance] = newDistance
+            it[RidesTable.updatedAt] = LocalDateTime.now()
+        } > 0
+    }
+
     override suspend fun updateRide(
         id: UUID,
         finishAddress: String,
         finishDateTime: LocalDateTime,
         status: RideStatus
     ): Boolean = query {
-        RidesTable.update({ RidesTable.userId eq userId }) {
+        RidesTable.update({ RidesTable.id eq id }) {
             it[RidesTable.finishAddress] = finishAddress
             it[RidesTable.finishDateTime] = finishDateTime
             it[RidesTable.status] = status

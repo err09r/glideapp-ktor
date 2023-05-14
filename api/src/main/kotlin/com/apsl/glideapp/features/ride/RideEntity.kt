@@ -13,6 +13,7 @@ data class RideEntity(
     val finishAddress: String?,
     val startDateTime: LocalDateTime,
     val finishDateTime: LocalDateTime?,
+    val distance: Double,
     val status: RideStatus,
     val createdAt: LocalDateTime,
     val updateAt: LocalDateTime

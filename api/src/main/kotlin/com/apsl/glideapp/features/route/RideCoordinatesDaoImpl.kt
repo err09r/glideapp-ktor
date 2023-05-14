@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
@@ -19,6 +20,15 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
             createdAt = this[RideCoordinatesTable.createdAt],
             updateAt = this[RideCoordinatesTable.updatedAt]
         )
+    }
+
+    override suspend fun getLatestRideCoordinatesByRideId(rideId: UUID): RideCoordinatesEntity? = query {
+        RideCoordinatesTable
+            .select { RideCoordinatesTable.rideId eq rideId }
+            .orderBy(column = RideCoordinatesTable.updatedAt, order = SortOrder.DESC)
+            .limit(1)
+            .map { it.toRideCoordinatesEntity() }
+            .singleOrNull()
     }
 
     override suspend fun getAllRideCoordinatesByRideId(rideId: UUID): List<RideCoordinatesEntity> = query {
