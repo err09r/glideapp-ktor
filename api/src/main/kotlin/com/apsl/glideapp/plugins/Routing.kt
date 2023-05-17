@@ -22,11 +22,9 @@ fun Application.configureRouting() {
             authRoutes()
             authenticate {
                 userRoutes()
+                mapRoutes()
                 rideRoutes()
             }
-
-            //TODO: move to 'authenticate' block when debugging is finished
-            mapRoutes()
         }
     }
 }

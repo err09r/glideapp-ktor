@@ -6,7 +6,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-private const val EARTH_RADIUS_KM = 6371
+private const val EARTH_RADIUS_METERS = 6_371_000
 
 /**
  * Checks whether the point is inside the polygon.
@@ -45,7 +45,7 @@ fun isInsideOfPolygon(
  * @see <a href="https://community.esri.com/t5/coordinate-reference-systems-blog/distance-on-a-sphere-the-haversine-formula/ba-p/902128">Distance on a sphere: The Haversine Formula</a>
  * @return distance in meters
  */
-fun calculateDistance(route: List<Coordinates>): Double {
+fun calculateDistance(vararg route: Coordinates): Double {
     var distance = 0.0
 
     if (route.size < 2) {
@@ -60,7 +60,7 @@ fun calculateDistance(route: List<Coordinates>): Double {
             val lat2 = Math.toRadians(route[nextIndex].latitude)
             val long2 = Math.toRadians(route[nextIndex].longitude)
 
-            distance += 2 * EARTH_RADIUS_KM *
+            distance += 2 * EARTH_RADIUS_METERS *
                     asin(
                         sqrt(
                             sin((lat2 - lat1) / 2)

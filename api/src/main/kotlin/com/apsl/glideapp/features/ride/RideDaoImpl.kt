@@ -21,11 +21,25 @@ class RideDaoImpl : RideDao {
             finishAddress = this[RidesTable.finishAddress],
             startDateTime = this[RidesTable.startDateTime],
             finishDateTime = this[RidesTable.finishDateTime],
-            distance = this[RidesTable.distance],
             status = this[RidesTable.status],
+            distance = this[RidesTable.distance],
+            averageSpeed = this[RidesTable.averageSpeed],
             createdAt = this[RidesTable.createdAt],
             updateAt = this[RidesTable.updatedAt]
         )
+    }
+
+    override suspend fun getAllFinishedRidesByUserId(userId: UUID): List<RideEntity> = query {
+        RidesTable
+            .select { (RidesTable.userId eq userId) and (RidesTable.status eq RideStatus.Finished) }
+            .map { it.toRideEntity() }
+    }
+
+    override suspend fun getRideById(id: UUID): RideEntity? = query {
+        RidesTable
+            .select { RidesTable.id eq id }
+            .map { it.toRideEntity() }
+            .singleOrNull()
     }
 
     override suspend fun getUserHasActiveRides(userId: UUID): Boolean = query {
@@ -36,7 +50,7 @@ class RideDaoImpl : RideDao {
 
     override suspend fun insertRide(
         userId: UUID,
-        startAddress: String,
+        startAddress: String?,
         startDateTime: LocalDateTime
     ): RideEntity? = query {
         val insertStatement = RidesTable.insert {
@@ -50,23 +64,25 @@ class RideDaoImpl : RideDao {
         insertStatement.resultedValues?.singleOrNull()?.toRideEntity()
     }
 
-    override suspend fun updateRide(id: UUID, newDistance: Double): Boolean = query {
+    override suspend fun updateRide(id: UUID, distance: Double): Boolean = query {
         RidesTable.update({ RidesTable.id eq id }) {
-            it[RidesTable.distance] = newDistance
+            it[RidesTable.distance] = distance
             it[RidesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 
     override suspend fun updateRide(
         id: UUID,
-        finishAddress: String,
+        finishAddress: String?,
         finishDateTime: LocalDateTime,
-        status: RideStatus
+        status: RideStatus,
+        averageSpeed: Double
     ): Boolean = query {
         RidesTable.update({ RidesTable.id eq id }) {
             it[RidesTable.finishAddress] = finishAddress
             it[RidesTable.finishDateTime] = finishDateTime
             it[RidesTable.status] = status
+            it[RidesTable.averageSpeed] = averageSpeed
             it[RidesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }

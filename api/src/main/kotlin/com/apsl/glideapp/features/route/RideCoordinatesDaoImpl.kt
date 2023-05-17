@@ -26,7 +26,7 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
         RideCoordinatesTable
             .select { RideCoordinatesTable.rideId eq rideId }
             .orderBy(column = RideCoordinatesTable.updatedAt, order = SortOrder.DESC)
-            .limit(1)
+            .limit(n = 1, offset = 1)
             .map { it.toRideCoordinatesEntity() }
             .singleOrNull()
     }

@@ -1,5 +1,6 @@
 package com.apsl.glideapp.features.ride
 
+import com.apsl.glideapp.common.dto.RideDto
 import com.apsl.glideapp.common.dto.RideEventDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.RideAction
@@ -10,6 +11,8 @@ import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.utils.calculateDistance
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 
 class RideController(
     private val rideDao: RideDao,
@@ -46,7 +49,12 @@ class RideController(
         }
     }
 
-    private suspend fun startRide(userId: String, vehicleId: String, address: String, dateTime: LocalDateTime): String {
+    private suspend fun startRide(
+        userId: String,
+        vehicleId: String,
+        address: String?,
+        dateTime: LocalDateTime
+    ): String {
         val userUuid = UUID.fromString(userId)
         //        if (rideDao.getUserHasActiveRides(userId)) {
 //            //TODO: Send message that user already has active ride
@@ -79,8 +87,10 @@ class RideController(
         }
 
         if (latestSavedCoordinates != null) {
-            val newDistance = calculateDistance(listOf(latestSavedCoordinates, coordinates))
-            rideDao.updateRide(id = rideUuid, newDistance = newDistance)
+            val newDistance = calculateDistance(latestSavedCoordinates, coordinates)
+            val previousTotalDistance = rideDao.getRideById(rideUuid)?.distance ?: 0.0
+            val newTotalDistance = previousTotalDistance + newDistance
+            rideDao.updateRide(id = rideUuid, distance = newTotalDistance)
         }
 
         return rideCoordinatesDao.getAllRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
@@ -88,15 +98,27 @@ class RideController(
         }
     }
 
-    private suspend fun finishRide(rideId: String, vehicleId: String, address: String, dateTime: LocalDateTime) {
+    private suspend fun finishRide(rideId: String, vehicleId: String, address: String?, dateTime: LocalDateTime) {
         val rideUuid = UUID.fromString(rideId)
         val vehicleUuid = UUID.fromString(vehicleId)
+
+        val ride = rideDao.getRideById(rideUuid)
+        requireNotNull(ride)
+
+        val startInstant = ride.startDateTime.toInstant(TimeZone.currentSystemDefault())
+        val finishInstant = dateTime.toInstant(TimeZone.currentSystemDefault())
+
+        val durationInSeconds = finishInstant.minus(startInstant).inWholeSeconds
+        val distanceInMeters = ride.distance
+
+        val averageSpeed = distanceInMeters / durationInSeconds * 3.6
 
         val wasUpdated = rideDao.updateRide(
             id = rideUuid,
             finishAddress = address,
             finishDateTime = dateTime,
-            status = RideStatus.Finished
+            status = RideStatus.Finished,
+            averageSpeed = averageSpeed
         )
         if (!wasUpdated) {
             //TODO: Handle
@@ -105,5 +127,23 @@ class RideController(
 
         //TODO: Add logic to change 'batteryCharge' and 'vehicleStatus' depending on ride distance etc.
         vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.Available)
+    }
+
+    suspend fun getAllFinishedRidesByUserId(userId: String?) = runCatching {
+        if (userId == null) {
+            throw IllegalArgumentException()
+        }
+
+        rideDao.getAllFinishedRidesByUserId(UUID.fromString(userId)).map { entity ->
+            RideDto(
+                id = entity.id.toString(),
+                startAddress = entity.startAddress,
+                finishAddress = entity.finishAddress,
+                startDateTime = entity.startDateTime,
+                finishDateTime = entity.finishDateTime ?: entity.startDateTime,
+                distance = entity.distance,
+                averageSpeed = entity.averageSpeed
+            )
+        }
     }
 }

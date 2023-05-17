@@ -9,12 +9,13 @@ import kotlinx.serialization.Serializable
 data class RideEntity(
     val id: UUID,
     val userId: UUID,
-    val startAddress: String,
+    val startAddress: String?,
     val finishAddress: String?,
     val startDateTime: LocalDateTime,
     val finishDateTime: LocalDateTime?,
-    val distance: Double,
     val status: RideStatus,
+    val distance: Double,
+    val averageSpeed: Double,
     val createdAt: LocalDateTime,
     val updateAt: LocalDateTime
 )

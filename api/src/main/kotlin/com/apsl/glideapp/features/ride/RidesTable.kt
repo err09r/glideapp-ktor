@@ -8,12 +8,13 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 object RidesTable : Table("rides") {
     val id = uuid("id").autoGenerate().uniqueIndex()
     val userId = reference("userId", UsersTable.id)
-    val startAddress = text("startAddress")
+    val startAddress = text("startAddress").nullable().default(null)
     val finishAddress = text("finishAddress").nullable().default(null)
     val startDateTime = datetime("startDateTime")
     val finishDateTime = datetime("finishDateTime").nullable().default(null)
-    val distance = double("distance")
     val status = enumeration<RideStatus>("status")
+    val distance = double("distance").default(0.0)
+    val averageSpeed = double("averageSpeed").default(0.0)
     val createdAt = datetime("createdAt")
     val updatedAt = datetime("updatedAt")
 
