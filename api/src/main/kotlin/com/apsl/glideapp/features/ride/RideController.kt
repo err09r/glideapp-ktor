@@ -7,6 +7,7 @@ import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.util.UUID
+import com.apsl.glideapp.common.util.capitalized
 import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.utils.calculateDistance
@@ -130,21 +131,41 @@ class RideController(
         vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.Available)
     }
 
-    suspend fun getAllFinishedRidesByUserId(userId: String?) = runCatching {
-        if (userId == null) {
-            throw IllegalArgumentException()
-        }
+    suspend fun getAllRidesByStatusAndUserId(status: String?, userId: String?) = runCatching {
+        checkNotNull(status)
+        checkNotNull(userId)
 
-        rideDao.getAllFinishedRidesByUserId(UUID.fromString(userId)).map { entity ->
-            RideDto(
-                id = entity.id.toString(),
-                startAddress = entity.startAddress,
-                finishAddress = entity.finishAddress,
-                startDateTime = entity.startDateTime,
-                finishDateTime = entity.finishDateTime ?: entity.startDateTime,
-                distance = entity.distance,
-                averageSpeed = entity.averageSpeed
-            )
-        }
+        rideDao.getAllRidesByStatusAndUserId(RideStatus.valueOf(status.capitalized()), UUID.fromString(userId))
+            .map { entity ->
+                RideDto(
+                    id = entity.id.toString(),
+                    startAddress = entity.startAddress,
+                    finishAddress = entity.finishAddress,
+                    startDateTime = entity.startDateTime,
+                    finishDateTime = entity.finishDateTime ?: entity.startDateTime,
+                    route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+                        Coordinates(latitude = it.latitude, longitude = it.longitude)
+                    },
+                    distance = entity.distance,
+                    averageSpeed = entity.averageSpeed
+                )
+            }
+    }
+
+    suspend fun getRideById(rideId: String?) = runCatching {
+        checkNotNull(rideId)
+        val entity = rideDao.getRideById(UUID.fromString(rideId)) ?: error("")
+        RideDto(
+            id = entity.id.toString(),
+            startAddress = entity.startAddress,
+            finishAddress = entity.finishAddress,
+            startDateTime = entity.startDateTime,
+            finishDateTime = entity.finishDateTime ?: entity.startDateTime,
+            route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+                Coordinates(latitude = it.latitude, longitude = it.longitude)
+            },
+            distance = entity.distance,
+            averageSpeed = entity.averageSpeed
+        )
     }
 }

@@ -29,9 +29,9 @@ class RideDaoImpl : RideDao {
         )
     }
 
-    override suspend fun getAllFinishedRidesByUserId(userId: UUID): List<RideEntity> = query {
+    override suspend fun getAllRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
         RidesTable
-            .select { (RidesTable.userId eq userId) and (RidesTable.status eq RideStatus.Finished) }
+            .select { (RidesTable.userId eq userId) and (RidesTable.status eq status) }
             .map { it.toRideEntity() }
     }
 
@@ -40,12 +40,6 @@ class RideDaoImpl : RideDao {
             .select { RidesTable.id eq id }
             .map { it.toRideEntity() }
             .singleOrNull()
-    }
-
-    override suspend fun getUserHasActiveRides(userId: UUID): Boolean = query {
-        RidesTable
-            .select { (RidesTable.userId eq userId) and (RidesTable.status neq RideStatus.Finished) }
-            .count() > 0
     }
 
     override suspend fun insertRide(

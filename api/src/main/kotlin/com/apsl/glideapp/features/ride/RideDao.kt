@@ -5,9 +5,8 @@ import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
 
 interface RideDao {
-    suspend fun getAllFinishedRidesByUserId(userId: UUID): List<RideEntity>
+    suspend fun getAllRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity>
     suspend fun getRideById(id: UUID): RideEntity?
-    suspend fun getUserHasActiveRides(userId: UUID): Boolean
     suspend fun insertRide(userId: UUID, startAddress: String?, startDateTime: LocalDateTime): RideEntity?
     suspend fun updateRide(id: UUID, distance: Double): Boolean
     suspend fun updateRide(

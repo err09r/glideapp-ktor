@@ -24,7 +24,8 @@ fun Route.rideRoutes() {
     val rideController: RideController by inject()
     route("ride") {
         observeRideRoute(rideController)
-        getAllFinishedRidesByUserIdRoute(rideController)
+        getAllRidesByStatusAndUserIdRoute(rideController)
+        getRideByIdRoute(rideController)
     }
 }
 
@@ -54,11 +55,28 @@ fun Route.observeRideRoute(rideController: RideController) {
     }
 }
 
-fun Route.getAllFinishedRidesByUserIdRoute(rideController: RideController) {
-    get("{userId?}") {
-        val userId =
-            call.parameters["userId"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
-        rideController.getAllFinishedRidesByUserId(userId)
+fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
+    get {
+        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        val rideStatus = call.request.queryParameters["status"]
+        rideController.getAllRidesByStatusAndUserId(rideStatus, userId)
+            .onSuccess { rideDtos -> call.respond(rideDtos) }
+            .onFailure { throwable ->
+                call.respondNullable(
+                    message = throwable.message,
+                    status = when (throwable) {
+                        is IllegalArgumentException -> HttpStatusCode.BadRequest
+                        else -> HttpStatusCode.InternalServerError
+                    }
+                )
+            }
+    }
+}
+
+fun Route.getRideByIdRoute(rideController: RideController) {
+    get("{id}") {
+        val rideId = call.parameters["id"]
+        rideController.getRideById(rideId)
             .onSuccess { rideDto -> call.respond(rideDto) }
             .onFailure { throwable ->
                 call.respondNullable(

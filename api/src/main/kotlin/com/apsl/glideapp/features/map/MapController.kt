@@ -66,16 +66,14 @@ class MapController(
                 )
             }
 
-        val ridingZones = zoneDao.getAllRidingZones()
-            .filter { entity -> entity.coordinates.any { it within bounds } } //TODO: Change to filtering in database
-            .map { entity ->
-                ZoneDto(
-                    id = entity.id.toString(),
-                    code = entity.code,
-                    title = entity.title,
-                    coordinates = entity.coordinates
-                )
-            }
+        val ridingZones = zoneDao.getAllRidingZones().map { entity ->
+            ZoneDto(
+                id = entity.id.toString(),
+                code = entity.code,
+                title = entity.title,
+                coordinates = entity.coordinates
+            )
+        }
 
         return MapStateDto(ridingZones = ridingZones, availableVehicles = availableVehicles)
     }
