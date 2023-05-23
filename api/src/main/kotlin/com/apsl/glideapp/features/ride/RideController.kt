@@ -105,6 +105,7 @@ class RideController(
         val ride = rideDao.getRideById(rideUuid)
         requireNotNull(ride)
 
+        //TODO: move to separate function
         val startInstant = ride.startDateTime.toInstant(TimeZone.currentSystemDefault())
         val finishInstant = dateTime.toInstant(TimeZone.currentSystemDefault())
 
