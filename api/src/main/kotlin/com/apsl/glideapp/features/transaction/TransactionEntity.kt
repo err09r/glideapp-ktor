@@ -1,13 +1,12 @@
-package com.apsl.glideapp.features.route
+package com.apsl.glideapp.features.transaction
 
 import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
 
-data class RideCoordinatesEntity(
+data class TransactionEntity(
     val id: UUID,
-    val rideId: UUID,
-    val latitude: Double,
-    val longitude: Double,
+    val userId: UUID,
+    val amount: Double,
     val createdAt: LocalDateTime,
     val updateAt: LocalDateTime
 )

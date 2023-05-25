@@ -3,9 +3,7 @@ package com.apsl.glideapp.features.ride
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class RideEntity(
     val id: UUID,
     val userId: UUID,

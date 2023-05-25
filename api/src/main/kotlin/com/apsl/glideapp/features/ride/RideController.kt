@@ -132,8 +132,8 @@ class RideController(
     }
 
     suspend fun getAllRidesByStatusAndUserId(status: String?, userId: String?) = runCatching {
-        checkNotNull(status)
-        checkNotNull(userId)
+        requireNotNull(status)
+        requireNotNull(userId)
 
         rideDao.getAllRidesByStatusAndUserId(RideStatus.valueOf(status.capitalized()), UUID.fromString(userId))
             .map { entity ->
@@ -153,7 +153,7 @@ class RideController(
     }
 
     suspend fun getRideById(rideId: String?) = runCatching {
-        checkNotNull(rideId)
+        requireNotNull(rideId)
         val entity = rideDao.getRideById(UUID.fromString(rideId)) ?: error("")
         RideDto(
             id = entity.id.toString(),

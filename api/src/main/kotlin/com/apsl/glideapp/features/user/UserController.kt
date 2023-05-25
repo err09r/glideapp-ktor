@@ -9,7 +9,7 @@ import com.apsl.glideapp.utils.UserNotFoundException
 class UserController(private val userDao: UserDao, private val rideDao: RideDao) {
 
     suspend fun getUserById(id: String?) = runCatching {
-        checkNotNull(id)
+        requireNotNull(id)
 
         val userUuid = UUID.fromString(id)
 
