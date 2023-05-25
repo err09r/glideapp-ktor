@@ -15,35 +15,35 @@ class ZoneDaoImpl : ZoneDao {
 
     private fun ResultRow.toZoneEntity(): ZoneEntity {
         return ZoneEntity(
-            id = this[Zones.id],
-            code = this[Zones.code],
-            title = this[Zones.title],
-            type = this[Zones.type],
-            coordinates = CoordinatesConverter.toValues(this[Zones.coordinates]),
-            createdAt = this[Zones.createdAt],
-            updateAt = this[Zones.updatedAt]
+            id = this[ZonesTable.id],
+            code = this[ZonesTable.code],
+            title = this[ZonesTable.title],
+            type = this[ZonesTable.type],
+            coordinates = CoordinatesConverter.toValues(this[ZonesTable.coordinates]),
+            createdAt = this[ZonesTable.createdAt],
+            updateAt = this[ZonesTable.updatedAt]
         )
     }
 
     override suspend fun getAllZones(): List<ZoneEntity> = query {
-        Zones.selectAll().map { it.toZoneEntity() }
+        ZonesTable.selectAll().map { it.toZoneEntity() }
     }
 
     override suspend fun getAllRidingZones(): List<ZoneEntity> = query {
-        Zones
-            .select { Zones.type eq ZoneType.Riding }
+        ZonesTable
+            .select { ZonesTable.type eq ZoneType.Riding }
             .map { it.toZoneEntity() }
     }
 
     override suspend fun getAllNoParkingZones(): List<ZoneEntity> = query {
-        Zones
-            .select { Zones.type eq ZoneType.NoParking }
+        ZonesTable
+            .select { ZonesTable.type eq ZoneType.NoParking }
             .map { it.toZoneEntity() }
     }
 
     override suspend fun getZoneByCode(code: Int): ZoneEntity? = query {
-        Zones
-            .select { Zones.code eq code }
+        ZonesTable
+            .select { ZonesTable.code eq code }
             .map { it.toZoneEntity() }
             .singleOrNull()
     }
@@ -54,13 +54,13 @@ class ZoneDaoImpl : ZoneDao {
         type: ZoneType,
         coordinates: List<Coordinates>
     ): ZoneEntity? = query {
-        val insertStatement = Zones.insert {
-            it[Zones.code] = code
-            it[Zones.title] = title
-            it[Zones.type] = type
-            it[Zones.coordinates] = CoordinatesConverter.fromValues(coordinates)
-            it[Zones.createdAt] = LocalDateTime.now()
-            it[Zones.updatedAt] = LocalDateTime.now()
+        val insertStatement = ZonesTable.insert {
+            it[ZonesTable.code] = code
+            it[ZonesTable.title] = title
+            it[ZonesTable.type] = type
+            it[ZonesTable.coordinates] = CoordinatesConverter.fromValues(coordinates)
+            it[ZonesTable.createdAt] = LocalDateTime.now()
+            it[ZonesTable.updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toZoneEntity()
     }

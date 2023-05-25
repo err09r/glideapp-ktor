@@ -3,6 +3,7 @@ package com.apsl.glideapp.features.vehicle
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
+import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
 import com.apsl.glideapp.database.converters.CoordinatesConverter
@@ -17,37 +18,37 @@ class VehicleDaoImpl : VehicleDao {
 
     private fun ResultRow.toVehicleEntity(): VehicleEntity {
         return VehicleEntity(
-            id = this[Vehicles.id],
-            code = this[Vehicles.code],
-            zoneCode = this[Vehicles.zoneCode],
-            batteryCharge = this[Vehicles.batteryCharge],
-            type = this[Vehicles.type],
-            status = this[Vehicles.status],
-            coordinates = CoordinatesConverter.toValue(this[Vehicles.coordinates]),
-            createdAt = this[Vehicles.createdAt],
-            updateAt = this[Vehicles.updatedAt]
+            id = this[VehiclesTable.id],
+            code = this[VehiclesTable.code],
+            zoneCode = this[VehiclesTable.zoneCode],
+            batteryCharge = this[VehiclesTable.batteryCharge],
+            type = this[VehiclesTable.type],
+            status = this[VehiclesTable.status],
+            coordinates = CoordinatesConverter.toValue(this[VehiclesTable.coordinates]),
+            createdAt = this[VehiclesTable.createdAt],
+            updateAt = this[VehiclesTable.updatedAt]
         )
     }
 
     override suspend fun getAllVehicles(): List<VehicleEntity> = query {
-        Vehicles.selectAll().map { it.toVehicleEntity() }
+        VehiclesTable.selectAll().map { it.toVehicleEntity() }
     }
 
     override suspend fun getAllVehiclesByZoneCode(code: Int): List<VehicleEntity> = query {
-        Vehicles
-            .select { Vehicles.zoneCode eq code }
+        VehiclesTable
+            .select { VehiclesTable.zoneCode eq code }
             .map { it.toVehicleEntity() }
     }
 
     override suspend fun getAllAvailableVehicles(): List<VehicleEntity> = query {
-        Vehicles
-            .select { Vehicles.status eq VehicleStatus.Available }
+        VehiclesTable
+            .select { VehiclesTable.status eq VehicleStatus.Available }
             .map { it.toVehicleEntity() }
     }
 
-    override suspend fun getVehicleByCode(code: Int): VehicleEntity? = query {
-        Vehicles
-            .select { Vehicles.code eq code }
+    override suspend fun getVehicleById(id: UUID): VehicleEntity? = query {
+        VehiclesTable
+            .select { VehiclesTable.id eq id }
             .map { it.toVehicleEntity() }
             .singleOrNull()
     }
@@ -60,30 +61,37 @@ class VehicleDaoImpl : VehicleDao {
         status: VehicleStatus,
         coordinates: Coordinates
     ): VehicleEntity? = query {
-        val insertStatement = Vehicles.insert {
-            it[Vehicles.code] = code
-            it[Vehicles.zoneCode] = zoneCode
-            it[Vehicles.batteryCharge] = batteryCharge
-            it[Vehicles.type] = type
-            it[Vehicles.status] = status
-            it[Vehicles.coordinates] = CoordinatesConverter.fromValue(coordinates)
-            it[Vehicles.createdAt] = LocalDateTime.now()
-            it[Vehicles.updatedAt] = LocalDateTime.now()
+        val insertStatement = VehiclesTable.insert {
+            it[VehiclesTable.code] = code
+            it[VehiclesTable.zoneCode] = zoneCode
+            it[VehiclesTable.batteryCharge] = batteryCharge
+            it[VehiclesTable.type] = type
+            it[VehiclesTable.status] = status
+            it[VehiclesTable.coordinates] = CoordinatesConverter.fromValue(coordinates)
+            it[VehiclesTable.createdAt] = LocalDateTime.now()
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toVehicleEntity()
     }
 
     override suspend fun updateVehicle(
-        code: Int,
+        id: UUID,
         batteryCharge: Int,
         status: VehicleStatus,
         coordinates: Coordinates
     ): Boolean = query {
-        Vehicles.update({ Vehicles.code eq code }) {
-            it[Vehicles.batteryCharge] = batteryCharge
-            it[Vehicles.status] = status
-            it[Vehicles.coordinates] = CoordinatesConverter.fromValue(coordinates)
-            it[Vehicles.updatedAt] = LocalDateTime.now()
+        VehiclesTable.update({ VehiclesTable.id eq id }) {
+            it[VehiclesTable.batteryCharge] = batteryCharge
+            it[VehiclesTable.status] = status
+            it[VehiclesTable.coordinates] = CoordinatesConverter.fromValue(coordinates)
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
+        } > 0
+    }
+
+    override suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean = query {
+        VehiclesTable.update({ VehiclesTable.id eq id }) {
+            it[VehiclesTable.status] = status
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 }

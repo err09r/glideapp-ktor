@@ -4,6 +4,10 @@ import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 import com.apsl.glideapp.common.models.ZoneType
+import com.apsl.glideapp.features.ride.RideDao
+import com.apsl.glideapp.features.ride.RideDaoImpl
+import com.apsl.glideapp.features.route.RideCoordinatesDao
+import com.apsl.glideapp.features.route.RideCoordinatesDaoImpl
 import com.apsl.glideapp.features.user.UserDao
 import com.apsl.glideapp.features.user.UserDaoImpl
 import com.apsl.glideapp.features.vehicle.VehicleDao
@@ -17,6 +21,8 @@ import org.koin.dsl.module
 
 val daoModule = module {
     single<UserDao> { UserDaoImpl() }
+    single<RideDao> { RideDaoImpl() }
+    single<RideCoordinatesDao> { RideCoordinatesDaoImpl() }
 
     single<ZoneDao>(createdAtStart = true) {
         ZoneDaoImpl().apply {

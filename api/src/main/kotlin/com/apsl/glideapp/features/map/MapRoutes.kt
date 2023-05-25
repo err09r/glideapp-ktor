@@ -1,6 +1,6 @@
 package com.apsl.glideapp.features.map
 
-import CoordinatesBounds
+import com.apsl.glideapp.common.models.CoordinatesBounds
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.receiveDeserialized
 import io.ktor.server.websocket.sendSerialized

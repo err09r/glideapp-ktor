@@ -1,72 +1,26 @@
-import io.ktor.plugin.features.DockerPortMapping
-import io.ktor.plugin.features.DockerPortMappingProtocol
-
 plugins {
-    application
-    id("io.ktor.plugin") version Versions.ktor
-    kotlin("jvm")
-    kotlin("plugin.serialization") version Versions.kotlin
-}
-
-group = Config.group
-version = Config.version
-
-application {
-    mainClass.set("${Config.group}.ApplicationKt")
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
-}
-
-ktor {
-    fatJar {
-        archiveFileName.set("glideapp-ktor.jar")
-    }
-    docker {
-        portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
-    }
-
-}
-
-distributions {
-    main {
-        distributionBaseName.set(rootProject.name)
-    }
+    id("com.apsl.glideapp.ktor-application")
+    kotlin("plugin.serialization")
 }
 
 dependencies {
-    implementation(Dependencies.Ktor.core)
-    implementation(Dependencies.Ktor.netty)
-    implementation(Dependencies.Ktor.contentNegotiation)
-    implementation(Dependencies.Ktor.httpRedirect)
-    implementation(Dependencies.Ktor.callLogging)
-    implementation(Dependencies.Ktor.swagger)
-    implementation(Dependencies.Ktor.auth)
-    implementation(Dependencies.Ktor.authJwt)
-    implementation(Dependencies.Ktor.serialization)
-    implementation(Dependencies.Ktor.websockets)
+    implementation(libs.bundles.ktor)
+    implementation(libs.bundles.koin)
+    implementation(libs.bundles.exposed)
 
-    implementation(Dependencies.Exposed.core)
-    implementation(Dependencies.Exposed.dao)
-    implementation(Dependencies.Exposed.jdbc)
-    implementation(Dependencies.Exposed.kotlinDatetime)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.datetime)
 
-    implementation(Dependencies.Kotlin.serializationJson)
-    implementation(Dependencies.Kotlin.datetime)
-    implementation(Dependencies.Kotlin.coroutines)
+    implementation(libs.glideapp.common.dto)
+    implementation(libs.glideapp.common.util)
 
-    implementation(Dependencies.Koin.ktor)
-    implementation(Dependencies.Koin.logger)
+    implementation(libs.logback.classic)
+    implementation(libs.commons.codec)
+    implementation(libs.postgresql)
 
-    implementation(Dependencies.glideAppCommonDto)
-    implementation(Dependencies.glideAppCommonUtil)
-
-    implementation(Dependencies.postgresql)
-    implementation(Dependencies.logback)
-    implementation(Dependencies.commonsCodec)
-
-    testImplementation(Dependencies.Ktor.serverTests)
-    testImplementation(Dependencies.Kotlin.junit)
+    testImplementation(libs.ktor.server.tests.jvm)
+    testImplementation(libs.kotlin.junit)
 }
 
 tasks {

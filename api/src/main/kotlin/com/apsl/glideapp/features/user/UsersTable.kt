@@ -3,7 +3,7 @@ package com.apsl.glideapp.features.user
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object Users : Table() {
+object UsersTable : Table("users") {
     val id = uuid("id").autoGenerate().uniqueIndex()
     val username = varchar("username", 20).uniqueIndex()
     val password = char("password", 64)
