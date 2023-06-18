@@ -9,5 +9,5 @@ data class RideCoordinatesEntity(
     val latitude: Double,
     val longitude: Double,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

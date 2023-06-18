@@ -12,5 +12,5 @@ data class ZoneEntity(
     val type: ZoneType,
     val coordinates: List<Coordinates>,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

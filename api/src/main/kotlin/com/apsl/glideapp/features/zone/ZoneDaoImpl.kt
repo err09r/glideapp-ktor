@@ -21,7 +21,7 @@ class ZoneDaoImpl : ZoneDao {
             type = this[ZonesTable.type],
             coordinates = CoordinatesConverter.toValues(this[ZonesTable.coordinates]),
             createdAt = this[ZonesTable.createdAt],
-            updateAt = this[ZonesTable.updatedAt]
+            updatedAt = this[ZonesTable.updatedAt]
         )
     }
 

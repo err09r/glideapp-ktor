@@ -15,5 +15,5 @@ data class RideEntity(
     val distance: Double,
     val averageSpeed: Double,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

@@ -4,6 +4,8 @@ import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 import com.apsl.glideapp.common.models.ZoneType
+import com.apsl.glideapp.features.configuration.GlideConfigurationDao
+import com.apsl.glideapp.features.configuration.GlideConfigurationDaoImpl
 import com.apsl.glideapp.features.ride.RideDao
 import com.apsl.glideapp.features.ride.RideDaoImpl
 import com.apsl.glideapp.features.route.RideCoordinatesDao
@@ -22,6 +24,7 @@ import kotlinx.coroutines.runBlocking
 import org.koin.dsl.module
 
 val daoModule = module {
+    single<GlideConfigurationDao> { GlideConfigurationDaoImpl().initializeIfEmpty() }
     single<ZoneDao>(createdAtStart = true) { ZoneDaoImpl().initializeIfEmpty() }
     single<VehicleDao> { VehicleDaoImpl().initializeIfEmpty() }
     single<UserDao> { UserDaoImpl() }
@@ -30,7 +33,19 @@ val daoModule = module {
     single<TransactionDao> { TransactionDaoImpl() }
 }
 
-private fun ZoneDaoImpl.initializeIfEmpty(): ZoneDaoImpl {
+private fun GlideConfigurationDao.initializeIfEmpty(): GlideConfigurationDao {
+    return this.apply {
+        runBlocking {
+            if (getAllGlideConfigurations().isEmpty()) {
+                launch {
+                    insertGlideConfiguration(countryCode = "PL", unlockingFee = 3.3, farePerMinute = 0.8)
+                }
+            }
+        }
+    }
+}
+
+private fun ZoneDao.initializeIfEmpty(): ZoneDao {
     return this.apply {
         runBlocking {
             if (getAllZones().isEmpty()) {

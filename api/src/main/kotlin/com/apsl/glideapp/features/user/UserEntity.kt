@@ -11,5 +11,5 @@ data class UserEntity(
     val firstName: String,
     val lastName: String,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

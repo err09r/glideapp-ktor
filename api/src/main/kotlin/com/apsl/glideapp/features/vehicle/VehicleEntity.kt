@@ -15,5 +15,5 @@ data class VehicleEntity(
     val status: VehicleStatus,
     val coordinates: Coordinates,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )
