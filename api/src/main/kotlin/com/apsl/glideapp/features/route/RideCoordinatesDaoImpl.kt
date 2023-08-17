@@ -18,7 +18,7 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
             latitude = this[RideCoordinatesTable.latitude],
             longitude = this[RideCoordinatesTable.longitude],
             createdAt = this[RideCoordinatesTable.createdAt],
-            updateAt = this[RideCoordinatesTable.updatedAt]
+            updatedAt = this[RideCoordinatesTable.updatedAt]
         )
     }
 

@@ -9,7 +9,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 
@@ -17,7 +16,6 @@ fun Route.userRoutes() {
     val userController: UserController by inject()
     route("user") {
         getUserByIdRoute(userController)
-        updateUserRoute(userController)
     }
 }
 
@@ -25,7 +23,7 @@ private fun Route.getUserByIdRoute(userController: UserController) {
     get("{id?}") {
         val userId = call.parameters["id"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
         userController.getUserById(userId)
-            .onSuccess { userDto -> call.respond(userDto) }
+            .onSuccess { call.respond(it) }
             .onFailure { throwable ->
                 call.respondNullable(
                     message = throwable.message,
@@ -36,10 +34,5 @@ private fun Route.getUserByIdRoute(userController: UserController) {
                     }
                 )
             }
-    }
-}
-
-private fun Route.updateUserRoute(userController: UserController) {
-    put("{id}") {
     }
 }

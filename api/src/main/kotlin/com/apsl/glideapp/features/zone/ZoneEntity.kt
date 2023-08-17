@@ -4,9 +4,7 @@ import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class ZoneEntity(
     val id: UUID,
     val code: Int,
@@ -14,5 +12,5 @@ data class ZoneEntity(
     val type: ZoneType,
     val coordinates: List<Coordinates>,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

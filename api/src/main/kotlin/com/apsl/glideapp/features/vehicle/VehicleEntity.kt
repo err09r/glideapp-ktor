@@ -5,9 +5,7 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class VehicleEntity(
     val id: UUID,
     val code: Int,
@@ -17,5 +15,5 @@ data class VehicleEntity(
     val status: VehicleStatus,
     val coordinates: Coordinates,
     val createdAt: LocalDateTime,
-    val updateAt: LocalDateTime
+    val updatedAt: LocalDateTime
 )

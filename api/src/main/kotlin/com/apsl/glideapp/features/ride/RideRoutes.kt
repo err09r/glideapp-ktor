@@ -59,8 +59,11 @@ fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
     get {
         val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
         val rideStatus = call.request.queryParameters["status"]
-        rideController.getAllRidesByStatusAndUserId(rideStatus, userId)
-            .onSuccess { rideDtos -> call.respond(rideDtos) }
+        val page = call.request.queryParameters["page"]
+        val limit = call.request.queryParameters["limit"]
+
+        rideController.getAllRidesByStatusAndUserId(status = rideStatus, userId = userId, page = page, limit = limit)
+            .onSuccess { call.respond(it) }
             .onFailure { throwable ->
                 call.respondNullable(
                     message = throwable.message,
@@ -77,7 +80,7 @@ fun Route.getRideByIdRoute(rideController: RideController) {
     get("{id}") {
         val rideId = call.parameters["id"]
         rideController.getRideById(rideId)
-            .onSuccess { rideDto -> call.respond(rideDto) }
+            .onSuccess { call.respond(it) }
             .onFailure { throwable ->
                 call.respondNullable(
                     message = throwable.message,

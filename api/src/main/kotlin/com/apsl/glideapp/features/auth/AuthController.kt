@@ -3,10 +3,12 @@ package com.apsl.glideapp.features.auth
 import com.apsl.glideapp.common.dto.AuthResponse
 import com.apsl.glideapp.common.dto.LoginRequest
 import com.apsl.glideapp.common.dto.RegisterRequest
+import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.features.auth.security.TokenClaim
 import com.apsl.glideapp.features.auth.security.TokenService
 import com.apsl.glideapp.features.auth.security.hashing.HashingService
 import com.apsl.glideapp.features.auth.security.hashing.SaltedHash
+import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.user.UserDao
 import com.apsl.glideapp.utils.UserAlreadyExistsException
 import com.apsl.glideapp.utils.UserNotFoundException
@@ -14,13 +16,12 @@ import com.apsl.glideapp.utils.UserNotFoundException
 class AuthController(
     private val userDao: UserDao,
     private val hashingService: HashingService,
-    private val tokenService: TokenService
+    private val tokenService: TokenService,
+    private val transactionDao: TransactionDao
 ) {
 
     suspend fun register(request: RegisterRequest?) = runCatching {
-        if (request == null) {
-            throw IllegalArgumentException()
-        }
+        requireNotNull(request)
 
         if (userDao.getUserByUsername(request.username) != null) {
             throw UserAlreadyExistsException()
@@ -46,14 +47,14 @@ class AuthController(
             lastName = "Test"
         ) ?: throw RegistrationFailedException()
 
+        transactionDao.insertTransaction(userId = userEntity.id, amount = 10.0, type = TransactionType.StartBonus)
+
         val token = tokenService.generate(TokenClaim("userId", userEntity.id.toString()))
         AuthResponse(token = token)
     }
 
     suspend fun login(request: LoginRequest?) = runCatching {
-        if (request == null) {
-            throw IllegalArgumentException()
-        }
+        requireNotNull(request)
 
         val userEntity = userDao.getUserByUsername(request.username) ?: throw UserNotFoundException()
 

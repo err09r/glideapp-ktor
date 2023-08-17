@@ -20,7 +20,7 @@ class UserDaoImpl : UserDao {
             firstName = this[UsersTable.firstName],
             lastName = this[UsersTable.lastName],
             createdAt = this[UsersTable.createdAt],
-            updateAt = this[UsersTable.updatedAt]
+            updatedAt = this[UsersTable.updatedAt]
         )
     }
 

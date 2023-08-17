@@ -6,6 +6,7 @@ import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -25,13 +26,31 @@ class RideDaoImpl : RideDao {
             distance = this[RidesTable.distance],
             averageSpeed = this[RidesTable.averageSpeed],
             createdAt = this[RidesTable.createdAt],
-            updateAt = this[RidesTable.updatedAt]
+            updatedAt = this[RidesTable.updatedAt]
         )
     }
 
     override suspend fun getAllRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
         RidesTable
             .select { (RidesTable.userId eq userId) and (RidesTable.status eq status) }
+            .orderBy(column = RidesTable.updatedAt, order = SortOrder.DESC)
+            .map { it.toRideEntity() }
+    }
+
+    override suspend fun getRidesByStatusAndUserId(
+        status: RideStatus,
+        userId: UUID,
+        limit: Int?,
+        offset: Long
+    ): List<RideEntity> = query {
+        RidesTable
+            .select { (RidesTable.userId eq userId) and (RidesTable.status eq status) }
+            .orderBy(column = RidesTable.updatedAt, order = SortOrder.DESC)
+            .apply {
+                if (limit != null) {
+                    this.limit(n = limit, offset = offset)
+                }
+            }
             .map { it.toRideEntity() }
     }
 

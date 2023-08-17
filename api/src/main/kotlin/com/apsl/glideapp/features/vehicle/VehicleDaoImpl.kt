@@ -26,7 +26,7 @@ class VehicleDaoImpl : VehicleDao {
             status = this[VehiclesTable.status],
             coordinates = CoordinatesConverter.toValue(this[VehiclesTable.coordinates]),
             createdAt = this[VehiclesTable.createdAt],
-            updateAt = this[VehiclesTable.updatedAt]
+            updatedAt = this[VehiclesTable.updatedAt]
         )
     }
 
