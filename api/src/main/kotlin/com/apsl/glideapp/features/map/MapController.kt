@@ -8,17 +8,8 @@ import com.apsl.glideapp.common.models.CoordinatesBounds
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
 import com.apsl.glideapp.features.zone.ZoneDao
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 class MapController(
     private val vehicleDao: VehicleDao,
@@ -75,7 +66,20 @@ class MapController(
             )
         }
 
-        return MapStateDto(ridingZones = ridingZones, availableVehicles = availableVehicles)
+        val noParkingZones = zoneDao.getAllNoParkingZones().map { entity ->
+            ZoneDto(
+                id = entity.id.toString(),
+                code = entity.code,
+                title = entity.title,
+                coordinates = entity.coordinates
+            )
+        }
+
+        return MapStateDto(
+            ridingZones = ridingZones,
+            noParkingZones = noParkingZones,
+            availableVehicles = availableVehicles
+        )
     }
 }
 
