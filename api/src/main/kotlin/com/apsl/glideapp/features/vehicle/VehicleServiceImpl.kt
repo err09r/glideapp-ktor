@@ -2,8 +2,9 @@ package com.apsl.glideapp.features.vehicle
 
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
+import com.apsl.glideapp.common.models.ZoneType
+import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.zone.ZoneDao
-import com.apsl.glideapp.utils.isInsideOfPolygon
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
@@ -18,16 +19,16 @@ import kotlinx.coroutines.isActive
 
 class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao: ZoneDao) : VehicleService {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO)
 
-    override val vehicleListChangesFlow = flow {
+    override val vehicleListChanges = flow {
         delay(15.seconds)
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
             val newVehicles = vehicles.shuffled().take(vehicles.size / 10)
 
             val vehicleStatuses = VehicleStatus.values()
-            val ridingZones = zoneDao.getAllRidingZones()
+            val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
 
             newVehicles.forEach {
                 vehicleDao.updateVehicle(
@@ -40,11 +41,11 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
 
             emit(Unit)
 //            delay(Random.nextInt(5, 20).seconds)
-            delay(15.seconds)
+            delay(90.seconds)
         }
     }
         .flowOn(Dispatchers.IO)
-        .shareIn(scope = coroutineScope, started = SharingStarted.Eagerly)
+        .shareIn(scope = scope, started = SharingStarted.Eagerly)
 
     private fun generateCoordinatesWithinZoneBounds(zoneBounds: List<Coordinates>): Coordinates {
         val leftmostPoint = zoneBounds.minOf { it.longitude }
@@ -52,21 +53,14 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
         val highestPoint = zoneBounds.minOf { it.latitude }
         val lowestPont = zoneBounds.maxOf { it.latitude }
 
-        var generatedLongitude: Double
-        var generatedLatitude: Double
+        var coordinates: Coordinates
 
         do {
-            generatedLatitude = Random.nextDouble(highestPoint, lowestPont)
-            generatedLongitude = Random.nextDouble(leftmostPoint, rightmostPoint)
-        } while (!isInsideOfPolygon(
-                numberOfVertices = zoneBounds.size,
-                vertX = zoneBounds.map { it.longitude },
-                vertY = zoneBounds.map { it.latitude },
-                pointX = generatedLongitude,
-                pointY = generatedLatitude
-            )
-        )
+            val generatedLatitude = Random.nextDouble(highestPoint, lowestPont)
+            val generatedLongitude = Random.nextDouble(leftmostPoint, rightmostPoint)
+            coordinates = Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
+        } while (!coordinates.isInsidePolygon(zoneBounds))
 
-        return Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
+        return coordinates
     }
 }

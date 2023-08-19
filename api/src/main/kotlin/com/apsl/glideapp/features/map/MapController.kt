@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.dto.ZoneDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
+import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
 import com.apsl.glideapp.features.zone.ZoneDao
@@ -25,7 +26,7 @@ class MapController(
     private val zoneDao: ZoneDao,
     private val vehicleService: VehicleService
 ) {
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.IO)
     private var mapStateObserveJob: Job? = null
 
     private var visibleBounds: CoordinatesBounds? = null
@@ -36,12 +37,12 @@ class MapController(
 
     suspend fun startObservingMapState(onEach: suspend (MapStateDto) -> Unit) {
         mapStateObserveJob?.cancelAndJoin()
-        mapStateObserveJob = coroutineScope.launch {
+        mapStateObserveJob = scope.launch {
             observeMapStateWithinVisibleBounds().collectLatest(onEach)
         }
     }
 
-    private fun observeMapStateWithinVisibleBounds() = vehicleService.vehicleListChangesFlow.map {
+    private fun observeMapStateWithinVisibleBounds() = vehicleService.vehicleListChanges.map {
         getCurrentMapState()
     }
         .onStart {
@@ -66,7 +67,7 @@ class MapController(
                 )
             }
 
-        val ridingZones = zoneDao.getAllRidingZones().map { entity ->
+        val ridingZones = zoneDao.getZonesByType(ZoneType.Riding).map { entity ->
             ZoneDto(
                 id = entity.id.toString(),
                 code = entity.code,
@@ -75,7 +76,20 @@ class MapController(
             )
         }
 
-        return MapStateDto(ridingZones = ridingZones, availableVehicles = availableVehicles)
+        val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking).map { entity ->
+            ZoneDto(
+                id = entity.id.toString(),
+                code = entity.code,
+                title = entity.title,
+                coordinates = entity.coordinates
+            )
+        }
+
+        return MapStateDto(
+            ridingZones = ridingZones,
+            noParkingZones = noParkingZones,
+            availableVehicles = availableVehicles
+        )
     }
 }
 

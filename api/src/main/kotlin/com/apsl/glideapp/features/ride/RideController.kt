@@ -7,14 +7,19 @@ import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.common.models.VehicleStatus
+import com.apsl.glideapp.common.models.ZoneType
+import com.apsl.glideapp.common.util.Geometry.calculateDistance
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
+import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.configuration.GlideConfigurationDao
 import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
+import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.utils.PaginationData
-import com.apsl.glideapp.utils.calculateDistance
+import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
+import com.apsl.glideapp.utils.UserTooFarFromVehicleException
 import kotlin.math.roundToInt
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -23,12 +28,13 @@ import kotlinx.datetime.toInstant
 class RideController(
     private val rideDao: RideDao,
     private val rideCoordinatesDao: RideCoordinatesDao,
+    private val zoneDao: ZoneDao,
     private val vehicleDao: VehicleDao,
     private val transactionDao: TransactionDao,
     private val glideConfigurationDao: GlideConfigurationDao
 ) {
 
-    suspend fun handleRideAction(action: RideAction, userId: String) = runCatching {
+    suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
         when (action) {
             is RideAction.Start -> {
                 val rideId = startRide(
@@ -50,13 +56,20 @@ class RideController(
                 finishRide(
                     rideId = action.rideId,
                     vehicleId = action.vehicleId,
+                    userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
                 )
                 RideEventDto.Finished
             }
         }
+    }.recover { throwable ->
+        when (throwable) {
+            is UserInsideNoParkingZoneException -> RideEventDto.Error.UserInsideNoParkingZone
+            else -> throw throwable
+        }
     }
+
 
     private suspend fun startRide(
         userId: String,
@@ -79,8 +92,8 @@ class RideController(
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
         val distanceFromVehicle = calculateDistance(userLocation, vehicle.coordinates)
 
-        if (distanceFromVehicle <= 25.0) {
-            error("User is too far from the vehicle")
+        if (distanceFromVehicle > 25.0) {
+            throw UserTooFarFromVehicleException()
         }
 
         val rideEntity =
@@ -119,11 +132,24 @@ class RideController(
         }
     }
 
-    private suspend fun finishRide(rideId: String, vehicleId: String, address: String?, dateTime: LocalDateTime) {
+    private suspend fun finishRide(
+        rideId: String,
+        vehicleId: String,
+        userLocation: Coordinates,
+        address: String?,
+        dateTime: LocalDateTime
+    ) {
         val rideUuid = UUID.fromString(rideId)
         val vehicleUuid = UUID.fromString(vehicleId)
 
         val ride = rideDao.getRideById(rideUuid) ?: error("")
+
+        val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking)
+        val isInsideNoParkingZone = noParkingZones.any { userLocation.isInsidePolygon(it.coordinates) }
+
+        if (isInsideNoParkingZone) {
+            throw UserInsideNoParkingZoneException()
+        }
 
         //TODO: move to separate function
         val startInstant = ride.startDateTime.toInstant(TimeZone.currentSystemDefault())
@@ -140,6 +166,7 @@ class RideController(
         val configuration = glideConfigurationDao.getGlideConfigurationByCountryCode("PL") ?: error("")
         val amount =
             -(configuration.unlockingFee + (configuration.farePerMinute * (durationInSeconds / 60.0).roundToInt()))
+
         transactionDao.insertTransaction(userId = ride.userId, amount = amount, type = TransactionType.Ride)
         //
 

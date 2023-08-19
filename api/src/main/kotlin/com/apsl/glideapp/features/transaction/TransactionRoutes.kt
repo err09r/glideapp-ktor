@@ -1,6 +1,7 @@
 package com.apsl.glideapp.features.transaction
 
 import com.apsl.glideapp.common.dto.TransactionRequest
+import com.apsl.glideapp.utils.InvalidVoucherCodeException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -47,13 +48,13 @@ fun Route.createTransactionRoute(transactionController: TransactionController) {
         val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
         val request = call.receiveNullable<TransactionRequest>()
 
-        transactionController.createTransactionRoute(userId = userId, request = request)
+        transactionController.createTransaction(userId = userId, request = request)
             .onSuccess { call.respond(status = HttpStatusCode.Created, message = "") }
             .onFailure { throwable ->
                 call.respondNullable(
                     message = throwable.message,
                     status = when (throwable) {
-                        is IllegalArgumentException -> HttpStatusCode.BadRequest
+                        is IllegalArgumentException, is InvalidVoucherCodeException -> HttpStatusCode.BadRequest
                         else -> HttpStatusCode.InternalServerError
                     }
                 )
