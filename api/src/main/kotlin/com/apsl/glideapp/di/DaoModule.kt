@@ -48,11 +48,11 @@ private fun GlideConfigurationDao.initializeIfEmpty(): GlideConfigurationDao {
 private fun ZoneDao.initializeIfEmpty(): ZoneDao {
     return this.apply {
         runBlocking {
-            if (getAllZones().isEmpty()) {
+            if (getZonesByType(ZoneType.Riding).isEmpty()) {
                 launch {
                     insertZone(
                         code = 1,
-                        title = "Słupsk",
+                        title = "SL-R-1",
                         type = ZoneType.Riding,
                         coordinates = listOf(
                             Coordinates(54.45261393078834, 17.017300376477383),
@@ -78,7 +78,7 @@ private fun ZoneDao.initializeIfEmpty(): ZoneDao {
                     )
                     insertZone(
                         code = 2,
-                        title = "Koszalin",
+                        title = "KO-R-1",
                         type = ZoneType.Riding,
                         coordinates = listOf(
                             Coordinates(54.17396235264483, 16.189101004355223),
@@ -100,6 +100,51 @@ private fun ZoneDao.initializeIfEmpty(): ZoneDao {
                             Coordinates(54.183837944426514, 16.21764916272818),
                             Coordinates(54.17493209248349, 16.201743767140336),
                             Coordinates(54.17396235264483, 16.189101004355223)
+                        )
+                    )
+                }
+            }
+
+            if (getZonesByType(ZoneType.NoParking).isEmpty()) {
+                launch {
+                    insertZone(
+                        code = 3,
+                        title = "SL-NP-1",
+                        type = ZoneType.NoParking,
+                        coordinates = listOf(
+                            Coordinates(54.462937, 17.032355),
+                            Coordinates(54.463959, 17.028533),
+                            Coordinates(54.467013, 17.027467),
+                            Coordinates(54.469021, 17.029545),
+                            Coordinates(54.468737, 17.032006),
+                            Coordinates(54.464500, 17.035922),
+                            Coordinates(54.462581, 17.033211)
+                        )
+                    )
+                    insertZone(
+                        code = 4,
+                        title = "SL-NP-2",
+                        type = ZoneType.NoParking,
+                        coordinates = listOf(
+                            Coordinates(54.448609, 17.025346),
+                            Coordinates(54.453250, 17.032561),
+                            Coordinates(54.454148, 17.041922),
+                            Coordinates(54.448060, 17.040119),
+                        )
+                    )
+                    insertZone(
+                        code = 5,
+                        title = "SL-NP-3",
+                        type = ZoneType.NoParking,
+                        coordinates = listOf(
+                            Coordinates(54.466102, 16.995612),
+                            Coordinates(54.467399, 16.984189),
+                            Coordinates(54.480087, 16.989273),
+                            Coordinates(54.478990, 16.998893),
+                            Coordinates(54.474352, 16.997261),
+                            Coordinates(54.474003, 16.999666),
+                            Coordinates(54.470362, 16.998206),
+                            Coordinates(54.470611, 16.995801),
                         )
                     )
                 }

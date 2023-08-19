@@ -4,9 +4,7 @@ import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.ZoneType
 
 interface ZoneDao {
-    suspend fun getAllZones(): List<ZoneEntity>
-    suspend fun getAllRidingZones(): List<ZoneEntity>
-    suspend fun getAllNoParkingZones(): List<ZoneEntity>
+    suspend fun getZonesByType(type: ZoneType): List<ZoneEntity>
     suspend fun getZoneByCode(code: Int): ZoneEntity?
     suspend fun insertZone(
         code: Int,
