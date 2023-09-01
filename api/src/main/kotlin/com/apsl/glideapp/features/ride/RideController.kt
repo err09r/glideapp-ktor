@@ -17,9 +17,11 @@ import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.utils.NoActiveRidesException
 import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
 import com.apsl.glideapp.utils.UserTooFarFromVehicleException
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlin.math.roundToInt
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -35,7 +37,13 @@ class RideController(
 ) {
 
     suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
+        KtorSimpleLogger("RideController").debug("action: $action")
         when (action) {
+            is RideAction.RequestCurrentState -> {
+                val (rideId, dateTime) = getActiveRideData(userId = userId)
+                RideEventDto.Restored(rideId = rideId, dateTime = dateTime)
+            }
+
             is RideAction.Start -> {
                 val rideId = startRide(
                     userId = userId,
@@ -66,10 +74,21 @@ class RideController(
     }.recover { throwable ->
         when (throwable) {
             is UserInsideNoParkingZoneException -> RideEventDto.Error.UserInsideNoParkingZone
+            is NoActiveRidesException -> RideEventDto.SessionCancelled(throwable.message)
             else -> throw throwable
         }
     }
 
+    private suspend fun getActiveRideData(userId: String?): Pair<String, LocalDateTime> {
+        requireNotNull(userId)
+        val userUuid = UUID.fromString(userId)
+
+        val activeRide = rideDao
+            .getRidesByStatusAndUserId(status = RideStatus.Started, userId = userUuid)
+            .singleOrNull() ?: throw NoActiveRidesException()
+
+        return (activeRide.id.toString() to activeRide.startDateTime)
+    }
 
     private suspend fun startRide(
         userId: String,
@@ -189,8 +208,8 @@ class RideController(
     suspend fun getAllRidesByStatusAndUserId(
         status: String?,
         userId: String?,
-        page: String?,
-        limit: String?
+        page: String? = null,
+        limit: String? = null
     ) = runCatching {
         requireNotNull(status)
         requireNotNull(userId)
