@@ -11,7 +11,7 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
         }
     }
     checkForGradleUpdate = true
-    outputDir = "$buildDir/dependencyUpdates"
+    outputDir = layout.buildDirectory.dir("dependencyUpdates").get().toString()
     outputFormatter = Config.DependencyUpdates.outputFormatter
     reportfileName = Config.DependencyUpdates.reportfileName
 }
