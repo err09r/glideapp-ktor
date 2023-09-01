@@ -1,15 +1,15 @@
 [versions]
-kotlin = "1.8.21"
-ktor = "2.3.3"
+kotlin = "1.9.10"
+ktor = "2.3.4"
 
-kotlinx-datetime = "0.4.0"
-kotlinx-serialization = "1.5.1"
+kotlinx-datetime = "0.4.1"
+kotlinx-serialization = "1.6.0"
 kotlinx-coroutines = "1.7.3"
 
 gradleVersionsPlugin = "0.47.0"
-glideapp-common = "0.0.37"
+glideapp-common = "0.0.41"
 koin = "3.4.3"
-exposed = "0.42.0"
+exposed = "0.43.0"
 postgresql = "42.6.0"
 logback = "1.4.11"
 commons-codec = "1.16.0"
