@@ -1,10 +1,9 @@
 package com.apsl.glideapp.features.ride
 
 import com.apsl.glideapp.common.models.RideAction
+import com.apsl.glideapp.features.auth.security.JwtUtils
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
@@ -38,7 +37,7 @@ fun Route.observeRideRoute(rideController: RideController) {
                 Json.decodeFromString<RideAction>(frame.readText())
             }.getOrNull()
 
-            val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+            val userId = JwtUtils.getUserId(call)
 
             if (action != null && userId != null) {
                 rideController.handleRideAction(action = action, userId = userId)
@@ -46,7 +45,7 @@ fun Route.observeRideRoute(rideController: RideController) {
                     .onFailure { throwable ->
                         //TODO: Handle closing reasons depending on exception type
                         KtorSimpleLogger("RideRoutes").error("handleRideAction failure: $throwable")
-                        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
+                        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, throwable.toString()))
                     }
             } else {
                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
@@ -57,12 +56,17 @@ fun Route.observeRideRoute(rideController: RideController) {
 
 fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
     get {
-        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        val userId = JwtUtils.getUserId(call)
         val rideStatus = call.request.queryParameters["status"]
         val page = call.request.queryParameters["page"]
         val limit = call.request.queryParameters["limit"]
 
-        rideController.getAllRidesByStatusAndUserId(status = rideStatus, userId = userId, page = page, limit = limit)
+        rideController.getAllRidesByStatusAndUserId(
+            status = rideStatus,
+            userId = userId,
+            page = page,
+            limit = limit
+        )
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
                 call.respondNullable(

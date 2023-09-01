@@ -1,11 +1,10 @@
 package com.apsl.glideapp.features.transaction
 
 import com.apsl.glideapp.common.dto.TransactionRequest
+import com.apsl.glideapp.features.auth.security.JwtUtils
 import com.apsl.glideapp.utils.InvalidVoucherCodeException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondNullable
@@ -25,7 +24,7 @@ fun Route.transactionRoutes() {
 
 fun Route.getTransactionsByUserIdRoute(transactionController: TransactionController) {
     get {
-        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        val userId = JwtUtils.getUserId(call)
         val page = call.request.queryParameters["page"]
         val limit = call.request.queryParameters["limit"]
 
@@ -45,7 +44,7 @@ fun Route.getTransactionsByUserIdRoute(transactionController: TransactionControl
 
 fun Route.createTransactionRoute(transactionController: TransactionController) {
     post {
-        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        val userId = JwtUtils.getUserId(call)
         val request = call.receiveNullable<TransactionRequest>()
 
         transactionController.createTransaction(userId = userId, request = request)

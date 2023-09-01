@@ -1,10 +1,9 @@
 package com.apsl.glideapp.features.user
 
+import com.apsl.glideapp.features.auth.security.JwtUtils
 import com.apsl.glideapp.utils.UserNotFoundException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
@@ -21,7 +20,7 @@ fun Route.userRoutes() {
 
 private fun Route.getUserByIdRoute(userController: UserController) {
     get("{id?}") {
-        val userId = call.parameters["id"] ?: call.principal<JWTPrincipal>()?.payload?.getClaim("userId")?.asString()
+        val userId = call.parameters["id"] ?: JwtUtils.getUserId(call)
         userController.getUserById(userId)
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
