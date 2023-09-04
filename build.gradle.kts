@@ -1,3 +1,5 @@
+import Config.DependencyUpdates.outputFormatter
+import Config.DependencyUpdates.reportfileName
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
@@ -11,7 +13,7 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
         }
     }
     checkForGradleUpdate = true
-    outputDir = layout.buildDirectory.dir("dependencyUpdates").get().toString()
+    outputDir = "build/dependencyUpdates"
     outputFormatter = Config.DependencyUpdates.outputFormatter
     reportfileName = Config.DependencyUpdates.reportfileName
 }
