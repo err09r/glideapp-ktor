@@ -26,16 +26,15 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
         delay(15.seconds)
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
-            val newVehicles = vehicles.shuffled().take(vehicles.size / 10)
+            val newVehicles = vehicles.shuffled().take(6)
 
-            val vehicleStatuses = VehicleStatus.entries
             val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
 
             newVehicles.forEach {
                 vehicleDao.updateVehicle(
                     id = it.id,
                     batteryCharge = Random.nextInt(40, 101),
-                    status = vehicleStatuses.random(),
+                    status = VehicleStatus.entries.random(),
                     coordinates = generateCoordinatesWithinZoneBounds(ridingZones[it.zoneCode - 1].coordinates)
                 )
             }
