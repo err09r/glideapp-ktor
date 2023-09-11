@@ -1,8 +1,10 @@
+@file:Suppress("FunctionName")
+
 package com.apsl.glideapp.database.converters
 
 interface TypeConverter<T> {
-    fun fromValue(value: T): String
-    fun fromValues(values: List<T>): String
-    fun toValue(string: String): T
-    fun toValues(string: String): List<T>
+    fun ValueToString(value: T): String
+    fun ValueListToString(values: List<T>): String
+    fun StringToValue(string: String): T
+    fun StringToValueList(string: String): List<T>
 }
