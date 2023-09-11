@@ -10,8 +10,8 @@ object ZonesTable : Table("zones") {
     val title = varchar("title", 20)
     val type = enumeration<ZoneType>("type")
     val coordinates = text("coordinates")
-    val createdAt = datetime("createdAt")
-    val updatedAt = datetime("updatedAt")
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

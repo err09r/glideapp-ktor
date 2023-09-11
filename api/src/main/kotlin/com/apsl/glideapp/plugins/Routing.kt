@@ -1,10 +1,12 @@
 package com.apsl.glideapp.plugins
 
 import com.apsl.glideapp.features.auth.authRoutes
+import com.apsl.glideapp.features.config.appConfigRoutes
 import com.apsl.glideapp.features.map.mapRoutes
 import com.apsl.glideapp.features.ride.rideRoutes
 import com.apsl.glideapp.features.transaction.transactionRoutes
 import com.apsl.glideapp.features.user.userRoutes
+import com.apsl.glideapp.features.zone.zoneRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
@@ -21,6 +23,8 @@ fun Application.configureRouting() {
         }
         route("api") {
             authRoutes()
+            zoneRoutes()
+            appConfigRoutes()
             authenticate {
                 userRoutes()
                 mapRoutes()

@@ -1,6 +1,5 @@
 package com.apsl.glideapp.database
 
-import com.apsl.glideapp.features.configuration.GlideConfigurationsTable
 import com.apsl.glideapp.features.ride.RidesTable
 import com.apsl.glideapp.features.route.RideCoordinatesTable
 import com.apsl.glideapp.features.transaction.TransactionsTable
@@ -22,7 +21,6 @@ object DatabaseFactory {
         val database = Database.connect(jdbcUrl, driverClassName)
         transaction(database) {
             SchemaUtils.create(
-                GlideConfigurationsTable,
                 ZonesTable,
                 VehiclesTable,
                 UsersTable,
