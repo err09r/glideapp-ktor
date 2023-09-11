@@ -12,7 +12,7 @@ import com.apsl.glideapp.common.util.Geometry.calculateDistance
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
 import com.apsl.glideapp.common.util.isInsidePolygon
-import com.apsl.glideapp.features.configuration.GlideConfigurationDao
+import com.apsl.glideapp.features.config.GlideConfiguration
 import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
@@ -32,12 +32,11 @@ class RideController(
     private val rideCoordinatesDao: RideCoordinatesDao,
     private val zoneDao: ZoneDao,
     private val vehicleDao: VehicleDao,
-    private val transactionDao: TransactionDao,
-    private val glideConfigurationDao: GlideConfigurationDao
+    private val transactionDao: TransactionDao
 ) {
 
     suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
-        KtorSimpleLogger("RideController").debug("action: $action")
+        KtorSimpleLogger("RideController").error("action: $action")
         when (action) {
             is RideAction.RequestCurrentState -> {
                 val (rideId, dateTime) = getActiveRideData(userId = userId)
@@ -111,7 +110,7 @@ class RideController(
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
         val distanceFromVehicle = calculateDistance(userLocation, vehicle.coordinates)
 
-        if (distanceFromVehicle > 25.0) {
+        if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
             throw UserTooFarFromVehicleException()
         }
 
@@ -182,9 +181,10 @@ class RideController(
 
         //TODO: move to separate function (unlock price + price per minute)
         //Remove hardcoded countryCode and calculate amount based on user location
-        val configuration = glideConfigurationDao.getGlideConfigurationByCountryCode("PL") ?: error("")
-        val amount =
-            -(configuration.unlockingFee + (configuration.farePerMinute * (durationInSeconds / 60.0).roundToInt()))
+        val unlockingFee = 3.3
+        val farePerMinute = 0.8
+        //TODO: replace with 'unlockingFee' and 'farePerMinute' of each vehicle/zone
+        val amount = -(unlockingFee + (farePerMinute * (durationInSeconds / 60.0).roundToInt()))
 
         transactionDao.insertTransaction(userId = ride.userId, amount = amount, type = TransactionType.Ride)
         //
