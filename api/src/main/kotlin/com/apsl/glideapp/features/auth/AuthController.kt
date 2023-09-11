@@ -27,15 +27,13 @@ class AuthController(
             throw UserAlreadyExistsException()
         }
 
-        val isUsernameCorrect = RegisterFieldVerifier.verifyUsername(request.username)
-        if (!isUsernameCorrect) {
-            throw IncorrectUsernameFormatException()
-        }
+        RegisterFieldVerifier
+            .verifyUsername(request.username)
+            .onFailure { throw IncorrectUsernameFormatException() }
 
-        val isPasswordCorrect = RegisterFieldVerifier.verifyPassword(request.password)
-        if (!isPasswordCorrect) {
-            throw IncorrectPasswordFormatException()
-        }
+        RegisterFieldVerifier
+            .verifyPassword(request.password)
+            .onFailure { throw IncorrectPasswordFormatException() }
 
         val saltedHash = hashingService.generateSaltedHash(request.password)
 

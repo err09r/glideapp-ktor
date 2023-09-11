@@ -1,8 +1,10 @@
 package com.apsl.glideapp.features.auth
 
-class IncorrectUsernameFormatException(override val message: String? = "Username is incorrect") : Exception(message)
+class IncorrectUsernameFormatException(override val message: String? = "Username format is incorrect") :
+    Exception(message)
 
-class IncorrectPasswordFormatException(override val message: String? = "Password is incorrect") : Exception(message)
+class IncorrectPasswordFormatException(override val message: String? = "Password format is incorrect") :
+    Exception(message)
 
 class RegistrationFailedException(override val message: String? = "User registration failed") : Exception(message)
 
