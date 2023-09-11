@@ -1,6 +1,6 @@
 plugins {
     id("com.apsl.glideapp.ktor-application")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {

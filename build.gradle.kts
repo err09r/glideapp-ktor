@@ -1,5 +1,3 @@
-import Config.DependencyUpdates.outputFormatter
-import Config.DependencyUpdates.reportfileName
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
