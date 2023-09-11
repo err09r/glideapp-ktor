@@ -51,12 +51,7 @@ class TransactionController(private val transactionDao: TransactionDao) {
     }
 
     private suspend fun createVoucherTransaction(userId: UUID, voucherCode: String) {
-        val amount = when (voucherCode.trim()) {
-            "FREE20" -> 20.0
-            "FREE35" -> 35.0
-            "FREE50" -> 50.0
-            else -> throw InvalidVoucherCodeException()
-        }
+        val amount = VoucherCodes.codes[voucherCode.trim()] ?: throw InvalidVoucherCodeException()
         transactionDao.insertTransaction(userId = userId, type = TransactionType.Voucher, amount = amount)
     }
 }
