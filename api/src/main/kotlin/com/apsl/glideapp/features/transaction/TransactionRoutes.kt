@@ -22,7 +22,7 @@ fun Route.transactionRoutes() {
     }
 }
 
-fun Route.getTransactionsByUserIdRoute(transactionController: TransactionController) {
+private fun Route.getTransactionsByUserIdRoute(transactionController: TransactionController) {
     get {
         val userId = JwtUtils.getUserId(call)
         val page = call.request.queryParameters["page"]
@@ -42,7 +42,7 @@ fun Route.getTransactionsByUserIdRoute(transactionController: TransactionControl
     }
 }
 
-fun Route.createTransactionRoute(transactionController: TransactionController) {
+private fun Route.createTransactionRoute(transactionController: TransactionController) {
     post {
         val userId = JwtUtils.getUserId(call)
         val request = call.receiveNullable<TransactionRequest>()

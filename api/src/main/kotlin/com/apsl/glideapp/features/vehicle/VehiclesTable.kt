@@ -9,13 +9,13 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 object VehiclesTable : Table("vehicles") {
     val id = uuid("id").autoGenerate().autoGenerate()
     val code = integer("code").uniqueIndex()
-    val zoneCode = reference("zoneCode", ZonesTable.code)
-    val batteryCharge = integer("batteryCharge")
+    val zoneCode = reference("zone_code", ZonesTable.code)
+    val batteryCharge = integer("battery_charge")
     val type = enumeration<VehicleType>("type")
     val status = enumeration<VehicleStatus>("status")
     val coordinates = text("coordinates")
-    val createdAt = datetime("createdAt")
-    val updatedAt = datetime("updatedAt")
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

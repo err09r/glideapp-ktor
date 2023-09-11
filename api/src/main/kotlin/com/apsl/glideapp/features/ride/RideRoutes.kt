@@ -28,7 +28,7 @@ fun Route.rideRoutes() {
     }
 }
 
-fun Route.observeRideRoute(rideController: RideController) {
+private fun Route.observeRideRoute(rideController: RideController) {
     webSocket {
         for (frame in incoming) {
             frame as? Frame.Text ?: continue
@@ -41,7 +41,10 @@ fun Route.observeRideRoute(rideController: RideController) {
 
             if (action != null && userId != null) {
                 rideController.handleRideAction(action = action, userId = userId)
-                    .onSuccess { sendSerialized(it) }
+                    .onSuccess {
+                        KtorSimpleLogger("RideController").error("event: $it")
+                        sendSerialized(it)
+                    }
                     .onFailure { throwable ->
                         //TODO: Handle closing reasons depending on exception type
                         KtorSimpleLogger("RideRoutes").error("handleRideAction failure: $throwable")
@@ -54,7 +57,7 @@ fun Route.observeRideRoute(rideController: RideController) {
     }
 }
 
-fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
+private fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
     get {
         val userId = JwtUtils.getUserId(call)
         val rideStatus = call.request.queryParameters["status"]
@@ -80,7 +83,7 @@ fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
     }
 }
 
-fun Route.getRideByIdRoute(rideController: RideController) {
+private fun Route.getRideByIdRoute(rideController: RideController) {
     get("{id}") {
         val rideId = call.parameters["id"]
         rideController.getRideById(rideId)
