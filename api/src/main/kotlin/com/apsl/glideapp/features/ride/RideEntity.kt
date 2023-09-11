@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDateTime
 data class RideEntity(
     val id: UUID,
     val userId: UUID,
+    val vehicleId: UUID,
     val startAddress: String?,
     val finishAddress: String?,
     val startDateTime: LocalDateTime,

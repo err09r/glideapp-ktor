@@ -18,6 +18,7 @@ class RideDaoImpl : RideDao {
         return RideEntity(
             id = this[RidesTable.id],
             userId = this[RidesTable.userId],
+            vehicleId = this[RidesTable.vehicleId],
             startAddress = this[RidesTable.startAddress],
             finishAddress = this[RidesTable.finishAddress],
             startDateTime = this[RidesTable.startDateTime],
@@ -63,11 +64,13 @@ class RideDaoImpl : RideDao {
 
     override suspend fun insertRide(
         userId: UUID,
+        vehicleId: UUID,
         startAddress: String?,
         startDateTime: LocalDateTime
     ): RideEntity? = query {
         val insertStatement = RidesTable.insert {
             it[RidesTable.userId] = userId
+            it[RidesTable.vehicleId] = vehicleId
             it[RidesTable.startAddress] = startAddress
             it[RidesTable.startDateTime] = startDateTime
             it[RidesTable.status] = RideStatus.Started

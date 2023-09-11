@@ -22,7 +22,7 @@ import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
 import com.apsl.glideapp.utils.UserTooFarFromVehicleException
 import io.ktor.util.logging.KtorSimpleLogger
-import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -62,7 +62,6 @@ class RideController(
             is RideAction.Finish -> {
                 finishRide(
                     rideId = action.rideId,
-                    vehicleId = action.vehicleId,
                     userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
@@ -114,8 +113,12 @@ class RideController(
             throw UserTooFarFromVehicleException()
         }
 
-        val rideEntity =
-            rideDao.insertRide(userId = userUuid, startAddress = address, startDateTime = dateTime) ?: error("")
+        val rideEntity = rideDao.insertRide(
+            userId = userUuid,
+            vehicleId = vehicleUuid,
+            startAddress = address,
+            startDateTime = dateTime
+        ) ?: error("")
 
         val wasUpdated = vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.InUse)
         if (!wasUpdated) {
@@ -152,13 +155,11 @@ class RideController(
 
     private suspend fun finishRide(
         rideId: String,
-        vehicleId: String,
         userLocation: Coordinates,
         address: String?,
         dateTime: LocalDateTime
     ) {
         val rideUuid = UUID.fromString(rideId)
-        val vehicleUuid = UUID.fromString(vehicleId)
 
         val ride = rideDao.getRideById(rideUuid) ?: error("")
 
@@ -181,10 +182,12 @@ class RideController(
 
         //TODO: move to separate function (unlock price + price per minute)
         //Remove hardcoded countryCode and calculate amount based on user location
-        val unlockingFee = 3.3
-        val farePerMinute = 0.8
+        val vehicle = vehicleDao.getVehicleById(ride.vehicleId) ?: error("")
+        val unlockingFee = GlideConfiguration.unlockingFees[vehicle.type] ?: error("")
+        val farePerMinute = GlideConfiguration.faresPerMinute[vehicle.type] ?: error("")
+        val minutes = durationInSeconds.seconds.inWholeMinutes
         //TODO: replace with 'unlockingFee' and 'farePerMinute' of each vehicle/zone
-        val amount = -(unlockingFee + (farePerMinute * (durationInSeconds / 60.0).roundToInt()))
+        val amount = -(unlockingFee + (farePerMinute * minutes))
 
         transactionDao.insertTransaction(userId = ride.userId, amount = amount, type = TransactionType.Ride)
         //
@@ -202,7 +205,7 @@ class RideController(
         }
 
         //TODO: Add logic to change 'batteryCharge' and 'vehicleStatus' depending on ride distance etc.
-        vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.Available)
+        vehicleDao.updateVehicle(id = ride.vehicleId, status = VehicleStatus.Available)
     }
 
     suspend fun getAllRidesByStatusAndUserId(

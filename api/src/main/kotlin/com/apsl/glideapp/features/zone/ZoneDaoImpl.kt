@@ -19,7 +19,7 @@ class ZoneDaoImpl : ZoneDao {
             code = this[ZonesTable.code],
             title = this[ZonesTable.title],
             type = this[ZonesTable.type],
-            coordinates = CoordinatesConverter.toValues(this[ZonesTable.coordinates]),
+            coordinates = CoordinatesConverter.StringToValueList(this[ZonesTable.coordinates]),
             createdAt = this[ZonesTable.createdAt],
             updatedAt = this[ZonesTable.updatedAt]
         )
@@ -54,7 +54,7 @@ class ZoneDaoImpl : ZoneDao {
             it[ZonesTable.code] = code
             it[ZonesTable.title] = title
             it[ZonesTable.type] = type
-            it[ZonesTable.coordinates] = CoordinatesConverter.fromValues(coordinates)
+            it[ZonesTable.coordinates] = CoordinatesConverter.ValueListToString(coordinates)
             it[ZonesTable.createdAt] = LocalDateTime.now()
             it[ZonesTable.updatedAt] = LocalDateTime.now()
         }

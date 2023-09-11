@@ -2,12 +2,14 @@ package com.apsl.glideapp.features.ride
 
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.features.user.UsersTable
+import com.apsl.glideapp.features.vehicle.VehiclesTable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object RidesTable : Table("rides") {
     val id = uuid("id").autoGenerate().uniqueIndex()
     val userId = reference("user_id", UsersTable.id)
+    val vehicleId = reference("vehicle_id", VehiclesTable.id)
     val startAddress = text("start_address").nullable().default(null)
     val finishAddress = text("finish_address").nullable().default(null)
     val startDateTime = datetime("start_date_time")

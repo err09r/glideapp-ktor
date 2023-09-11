@@ -24,7 +24,7 @@ class VehicleDaoImpl : VehicleDao {
             batteryCharge = this[VehiclesTable.batteryCharge],
             type = this[VehiclesTable.type],
             status = this[VehiclesTable.status],
-            coordinates = CoordinatesConverter.toValue(this[VehiclesTable.coordinates]),
+            coordinates = CoordinatesConverter.StringToValue(this[VehiclesTable.coordinates]),
             createdAt = this[VehiclesTable.createdAt],
             updatedAt = this[VehiclesTable.updatedAt]
         )
@@ -67,7 +67,7 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.batteryCharge] = batteryCharge
             it[VehiclesTable.type] = type
             it[VehiclesTable.status] = status
-            it[VehiclesTable.coordinates] = CoordinatesConverter.fromValue(coordinates)
+            it[VehiclesTable.coordinates] = CoordinatesConverter.ValueToString(coordinates)
             it[VehiclesTable.createdAt] = LocalDateTime.now()
             it[VehiclesTable.updatedAt] = LocalDateTime.now()
         }
@@ -83,7 +83,7 @@ class VehicleDaoImpl : VehicleDao {
         VehiclesTable.update({ VehiclesTable.id eq id }) {
             it[VehiclesTable.batteryCharge] = batteryCharge
             it[VehiclesTable.status] = status
-            it[VehiclesTable.coordinates] = CoordinatesConverter.fromValue(coordinates)
+            it[VehiclesTable.coordinates] = CoordinatesConverter.ValueToString(coordinates)
             it[VehiclesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }

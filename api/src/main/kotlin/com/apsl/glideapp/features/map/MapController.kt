@@ -4,6 +4,7 @@ import com.apsl.glideapp.common.dto.MapContentDto
 import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
+import com.apsl.glideapp.features.config.GlideConfiguration
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
 import kotlinx.coroutines.CoroutineScope
@@ -50,17 +51,20 @@ class MapController(
     private suspend fun getCurrentMapContent(): MapContentDto {
         val bounds = contentBounds.value ?: CoordinatesBounds.Undefined
 
-
         val availableVehicles = vehicleDao.getAllAvailableVehicles()
             .filter { it.coordinates within bounds } //TODO: Change to filtering in database
             .map { entity ->
+                val unlockingFee = GlideConfiguration.unlockingFees[entity.type] ?: error("")
+                val farePerMinute = GlideConfiguration.faresPerMinute[entity.type] ?: error("")
                 VehicleDto(
                     id = entity.id.toString(),
                     code = entity.code,
                     batteryCharge = entity.batteryCharge,
                     type = entity.type,
                     status = entity.status,
-                    coordinates = entity.coordinates
+                    coordinates = entity.coordinates,
+                    unlockingFee = unlockingFee,
+                    farePerMinute = farePerMinute
                 )
             }
 
@@ -75,10 +79,6 @@ private infix fun Coordinates.within(bounds: CoordinatesBounds): Boolean {
 
 private val CoordinatesBounds.Companion.Undefined
     get() = CoordinatesBounds(
-        Coordinates(0.0, 0.0),
-        Coordinates(0.0, 0.0)
+        southwest = Coordinates(0.0, 0.0),
+        northeast = Coordinates(0.0, 0.0)
     )
-
-private val Coordinates.Companion.Undefined get() = Coordinates(0.0, 0.0)
-
-private val MapContentDto.Companion.Empty get() = MapContentDto(emptyList())
