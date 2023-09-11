@@ -6,8 +6,8 @@ kotlinx-datetime = "0.4.1"
 kotlinx-serialization = "1.6.0"
 kotlinx-coroutines = "1.7.3"
 
-gradleVersionsPlugin = "0.47.0"
-glideapp-common = "0.0.41"
+gradleVersionsPlugin = "0.48.0"
+glideapp-common = "0.0.47"
 koin = "3.4.3"
 exposed = "0.43.0"
 postgresql = "42.6.0"
@@ -17,7 +17,6 @@ commons-codec = "1.16.0"
 [libraries]
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktor-gradlePlugin = { module = "io.ktor.plugin:plugin", version.ref = "ktor" }
-kotlinx-serialization-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 
 ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
@@ -68,3 +67,4 @@ exposed = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-kotlin-dateti
 
 [plugins]
 gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersionsPlugin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
