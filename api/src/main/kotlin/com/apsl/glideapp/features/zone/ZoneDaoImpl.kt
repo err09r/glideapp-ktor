@@ -9,6 +9,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 
 class ZoneDaoImpl : ZoneDao {
 
@@ -18,10 +19,16 @@ class ZoneDaoImpl : ZoneDao {
             code = this[ZonesTable.code],
             title = this[ZonesTable.title],
             type = this[ZonesTable.type],
-            coordinates = CoordinatesConverter.toValues(this[ZonesTable.coordinates]),
+            coordinates = CoordinatesConverter.StringToValueList(this[ZonesTable.coordinates]),
             createdAt = this[ZonesTable.createdAt],
             updatedAt = this[ZonesTable.updatedAt]
         )
+    }
+
+    override suspend fun getAllZones(): List<ZoneEntity> = query {
+        ZonesTable
+            .selectAll()
+            .map { it.toZoneEntity() }
     }
 
     override suspend fun getZonesByType(type: ZoneType): List<ZoneEntity> = query {
@@ -47,7 +54,7 @@ class ZoneDaoImpl : ZoneDao {
             it[ZonesTable.code] = code
             it[ZonesTable.title] = title
             it[ZonesTable.type] = type
-            it[ZonesTable.coordinates] = CoordinatesConverter.fromValues(coordinates)
+            it[ZonesTable.coordinates] = CoordinatesConverter.ValueListToString(coordinates)
             it[ZonesTable.createdAt] = LocalDateTime.now()
             it[ZonesTable.updatedAt] = LocalDateTime.now()
         }

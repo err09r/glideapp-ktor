@@ -1,40 +1,39 @@
 [versions]
-kotlin = "1.8.21"
-ktor = "2.3.3"
+kotlin = "1.9.10"
+ktor = "2.3.4"
 
-kotlinx-datetime = "0.4.0"
-kotlinx-serialization = "1.5.1"
 kotlinx-coroutines = "1.7.3"
+kotlinx-datetime = "0.4.1"
+kotlinx-serialization = "1.6.0"
 
-gradleVersionsPlugin = "0.47.0"
-glideapp-common = "0.0.37"
-koin = "3.4.3"
-exposed = "0.42.0"
-postgresql = "42.6.0"
-logback = "1.4.11"
 commons-codec = "1.16.0"
+exposed = "0.43.0"
+glideapp-common = "0.1.0"
+gradleVersionsPlugin = "0.48.0"
+koin = "3.4.3"
+logback = "1.4.11"
+postgresql = "42.6.0"
 
 [libraries]
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktor-gradlePlugin = { module = "io.ktor.plugin:plugin", version.ref = "ktor" }
-kotlinx-serialization-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 
-ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
-ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
-ktor-server-httpRedirect-jvm = { module = "io.ktor:ktor-server-http-redirect-jvm", version.ref = "ktor" }
-ktor-server-callLogging-jvm = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
-ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
+ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-callLogging-jvm = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-httpRedirect-jvm = { module = "io.ktor:ktor-server-http-redirect-jvm", version.ref = "ktor" }
+ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
 ktor-server-tests-jvm = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
-ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlin-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
@@ -46,21 +45,22 @@ exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datet
 
 glideapp-common-dto = { module = "com.github.err09r.glideapp-common:dto", version.ref = "glideapp-common" }
 glideapp-common-util = { module = "com.github.err09r.glideapp-common:util", version.ref = "glideapp-common" }
-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commons-codec" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 [bundles]
 ktor = [
-    "ktor-server-core-jvm",
-    "ktor-server-netty-jvm",
-    "ktor-server-contentNegotiation",
-    "ktor-server-httpRedirect-jvm",
-    "ktor-server-callLogging-jvm",
-    "ktor-server-swagger",
+    "ktor-serialization-json",
     "ktor-server-auth",
     "ktor-server-auth-jwt",
-    "ktor-serialization-json",
+    "ktor-server-callLogging-jvm",
+    "ktor-server-contentNegotiation",
+    "ktor-server-core-jvm",
+    "ktor-server-httpRedirect-jvm",
+    "ktor-server-netty-jvm",
+    "ktor-server-swagger",
     "ktor-server-websockets"
 ]
 koin = ["koin-ktor", "koin-logger-slf4j"]
@@ -68,3 +68,4 @@ exposed = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-kotlin-dateti
 
 [plugins]
 gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersionsPlugin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

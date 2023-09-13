@@ -12,15 +12,17 @@ import com.apsl.glideapp.common.util.Geometry.calculateDistance
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
 import com.apsl.glideapp.common.util.isInsidePolygon
-import com.apsl.glideapp.features.configuration.GlideConfigurationDao
+import com.apsl.glideapp.features.config.GlideConfiguration
 import com.apsl.glideapp.features.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.utils.NoActiveRidesException
 import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
 import com.apsl.glideapp.utils.UserTooFarFromVehicleException
-import kotlin.math.roundToInt
+import io.ktor.util.logging.KtorSimpleLogger
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -30,12 +32,17 @@ class RideController(
     private val rideCoordinatesDao: RideCoordinatesDao,
     private val zoneDao: ZoneDao,
     private val vehicleDao: VehicleDao,
-    private val transactionDao: TransactionDao,
-    private val glideConfigurationDao: GlideConfigurationDao
+    private val transactionDao: TransactionDao
 ) {
 
     suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
+        KtorSimpleLogger("RideController").error("action: $action")
         when (action) {
+            is RideAction.RequestCurrentState -> {
+                val (rideId, dateTime) = getActiveRideData(userId = userId)
+                RideEventDto.Restored(rideId = rideId, dateTime = dateTime)
+            }
+
             is RideAction.Start -> {
                 val rideId = startRide(
                     userId = userId,
@@ -55,7 +62,6 @@ class RideController(
             is RideAction.Finish -> {
                 finishRide(
                     rideId = action.rideId,
-                    vehicleId = action.vehicleId,
                     userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
@@ -66,10 +72,21 @@ class RideController(
     }.recover { throwable ->
         when (throwable) {
             is UserInsideNoParkingZoneException -> RideEventDto.Error.UserInsideNoParkingZone
+            is NoActiveRidesException -> RideEventDto.SessionCancelled(throwable.message)
             else -> throw throwable
         }
     }
 
+    private suspend fun getActiveRideData(userId: String?): Pair<String, LocalDateTime> {
+        requireNotNull(userId)
+        val userUuid = UUID.fromString(userId)
+
+        val activeRide = rideDao
+            .getRidesByStatusAndUserId(status = RideStatus.Started, userId = userUuid)
+            .singleOrNull() ?: throw NoActiveRidesException()
+
+        return (activeRide.id.toString() to activeRide.startDateTime)
+    }
 
     private suspend fun startRide(
         userId: String,
@@ -92,12 +109,16 @@ class RideController(
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
         val distanceFromVehicle = calculateDistance(userLocation, vehicle.coordinates)
 
-        if (distanceFromVehicle > 25.0) {
+        if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
             throw UserTooFarFromVehicleException()
         }
 
-        val rideEntity =
-            rideDao.insertRide(userId = userUuid, startAddress = address, startDateTime = dateTime) ?: error("")
+        val rideEntity = rideDao.insertRide(
+            userId = userUuid,
+            vehicleId = vehicleUuid,
+            startAddress = address,
+            startDateTime = dateTime
+        ) ?: error("")
 
         val wasUpdated = vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.InUse)
         if (!wasUpdated) {
@@ -134,13 +155,11 @@ class RideController(
 
     private suspend fun finishRide(
         rideId: String,
-        vehicleId: String,
         userLocation: Coordinates,
         address: String?,
         dateTime: LocalDateTime
     ) {
         val rideUuid = UUID.fromString(rideId)
-        val vehicleUuid = UUID.fromString(vehicleId)
 
         val ride = rideDao.getRideById(rideUuid) ?: error("")
 
@@ -163,9 +182,12 @@ class RideController(
 
         //TODO: move to separate function (unlock price + price per minute)
         //Remove hardcoded countryCode and calculate amount based on user location
-        val configuration = glideConfigurationDao.getGlideConfigurationByCountryCode("PL") ?: error("")
-        val amount =
-            -(configuration.unlockingFee + (configuration.farePerMinute * (durationInSeconds / 60.0).roundToInt()))
+        val vehicle = vehicleDao.getVehicleById(ride.vehicleId) ?: error("")
+        val unlockingFee = GlideConfiguration.unlockingFees[vehicle.type] ?: error("")
+        val farePerMinute = GlideConfiguration.faresPerMinute[vehicle.type] ?: error("")
+        val minutes = durationInSeconds.seconds.inWholeMinutes
+        //TODO: replace with 'unlockingFee' and 'farePerMinute' of each vehicle/zone
+        val amount = -(unlockingFee + (farePerMinute * minutes))
 
         transactionDao.insertTransaction(userId = ride.userId, amount = amount, type = TransactionType.Ride)
         //
@@ -183,14 +205,14 @@ class RideController(
         }
 
         //TODO: Add logic to change 'batteryCharge' and 'vehicleStatus' depending on ride distance etc.
-        vehicleDao.updateVehicle(id = vehicleUuid, status = VehicleStatus.Available)
+        vehicleDao.updateVehicle(id = ride.vehicleId, status = VehicleStatus.Available)
     }
 
     suspend fun getAllRidesByStatusAndUserId(
         status: String?,
         userId: String?,
-        page: String?,
-        limit: String?
+        page: String? = null,
+        limit: String? = null
     ) = runCatching {
         requireNotNull(status)
         requireNotNull(userId)

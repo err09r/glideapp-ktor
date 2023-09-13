@@ -6,6 +6,7 @@ import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.zone.ZoneDao
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,23 +26,22 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
         delay(15.seconds)
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
-            val newVehicles = vehicles.shuffled().take(vehicles.size / 10)
+            val newVehicles = vehicles.shuffled().take(6)
 
-            val vehicleStatuses = VehicleStatus.values()
             val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
 
             newVehicles.forEach {
                 vehicleDao.updateVehicle(
                     id = it.id,
                     batteryCharge = Random.nextInt(40, 101),
-                    status = vehicleStatuses.random(),
+                    status = VehicleStatus.entries.random(),
                     coordinates = generateCoordinatesWithinZoneBounds(ridingZones[it.zoneCode - 1].coordinates)
                 )
             }
 
             emit(Unit)
 //            delay(Random.nextInt(5, 20).seconds)
-            delay(90.seconds)
+            delay(Int.MAX_VALUE.hours)
         }
     }
         .flowOn(Dispatchers.IO)

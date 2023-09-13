@@ -17,8 +17,8 @@ fun Route.mapRoutes() {
             }.getOrNull()
 
             if (coordinatesBounds != null) {
-                mapController.updateVisibleBounds(coordinatesBounds)
-                mapController.startObservingMapState { sendSerialized(it) }
+                mapController.updateContentBounds(coordinatesBounds)
+                mapController.startObservingMapContent { sendSerialized(it) }
             }
         }
     }

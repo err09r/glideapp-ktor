@@ -21,7 +21,6 @@ ktor {
     docker {
         portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
     }
-
 }
 
 distributions {

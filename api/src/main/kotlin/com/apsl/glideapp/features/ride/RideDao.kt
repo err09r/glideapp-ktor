@@ -14,7 +14,12 @@ interface RideDao {
     ): List<RideEntity>
 
     suspend fun getRideById(id: UUID): RideEntity?
-    suspend fun insertRide(userId: UUID, startAddress: String?, startDateTime: LocalDateTime): RideEntity?
+    suspend fun insertRide(
+        userId: UUID,
+        vehicleId: UUID,
+        startAddress: String?,
+        startDateTime: LocalDateTime
+    ): RideEntity?
     suspend fun updateRide(id: UUID, distance: Double): Boolean
     suspend fun updateRide(
         id: UUID,

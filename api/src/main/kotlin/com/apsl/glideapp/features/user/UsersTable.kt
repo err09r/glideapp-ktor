@@ -8,10 +8,10 @@ object UsersTable : Table("users") {
     val username = varchar("username", 20).uniqueIndex()
     val password = char("password", 64)
     val salt = char("salt", 64)
-    val firstName = varchar("firstName", 32)
-    val lastName = varchar("lastName", 32)
-    val createdAt = datetime("createdAt")
-    val updatedAt = datetime("updatedAt")
+    val firstName = varchar("first_name", 32)
+    val lastName = varchar("last_name", 32)
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

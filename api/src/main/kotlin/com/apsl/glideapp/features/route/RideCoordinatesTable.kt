@@ -6,11 +6,11 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object RideCoordinatesTable : Table("ride_coordinates") {
     val id = uuid("id").autoGenerate().uniqueIndex()
-    val rideId = reference("rideId", RidesTable.id)
+    val rideId = reference("ride_id", RidesTable.id)
     val latitude = double("latitude")
     val longitude = double("longitude")
-    val createdAt = datetime("createdAt")
-    val updatedAt = datetime("updatedAt")
+    val createdAt = datetime("created_at")
+    val updatedAt = datetime("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

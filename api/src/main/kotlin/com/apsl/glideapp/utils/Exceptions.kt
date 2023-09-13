@@ -9,3 +9,7 @@ class InvalidVoucherCodeException(message: String? = "Invalid voucher code") : E
 class UserTooFarFromVehicleException(message: String? = "User is too far from vehicle") : Exception(message)
 
 class UserInsideNoParkingZoneException(message: String? = "User is inside no-parking zone") : Exception(message)
+
+class NoActiveRidesException(
+    message: String? = "User does not have any active rides at the moment"
+) : Exception(message)

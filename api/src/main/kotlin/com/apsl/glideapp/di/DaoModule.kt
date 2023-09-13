@@ -4,8 +4,6 @@ import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 import com.apsl.glideapp.common.models.ZoneType
-import com.apsl.glideapp.features.configuration.GlideConfigurationDao
-import com.apsl.glideapp.features.configuration.GlideConfigurationDaoImpl
 import com.apsl.glideapp.features.ride.RideDao
 import com.apsl.glideapp.features.ride.RideDaoImpl
 import com.apsl.glideapp.features.route.RideCoordinatesDao
@@ -24,25 +22,12 @@ import kotlinx.coroutines.runBlocking
 import org.koin.dsl.module
 
 val daoModule = module {
-    single<GlideConfigurationDao> { GlideConfigurationDaoImpl().initializeIfEmpty() }
     single<ZoneDao>(createdAtStart = true) { ZoneDaoImpl().initializeIfEmpty() }
     single<VehicleDao> { VehicleDaoImpl().initializeIfEmpty() }
     single<UserDao> { UserDaoImpl() }
     single<RideDao> { RideDaoImpl() }
     single<RideCoordinatesDao> { RideCoordinatesDaoImpl() }
     single<TransactionDao> { TransactionDaoImpl() }
-}
-
-private fun GlideConfigurationDao.initializeIfEmpty(): GlideConfigurationDao {
-    return this.apply {
-        runBlocking {
-            if (getAllGlideConfigurations().isEmpty()) {
-                launch {
-                    insertGlideConfiguration(countryCode = "PL", unlockingFee = 3.3, farePerMinute = 0.8)
-                }
-            }
-        }
-    }
 }
 
 private fun ZoneDao.initializeIfEmpty(): ZoneDao {
@@ -129,7 +114,7 @@ private fun ZoneDao.initializeIfEmpty(): ZoneDao {
                             Coordinates(54.448609, 17.025346),
                             Coordinates(54.453250, 17.032561),
                             Coordinates(54.454148, 17.041922),
-                            Coordinates(54.448060, 17.040119),
+                            Coordinates(54.448060, 17.040119)
                         )
                     )
                     insertZone(
@@ -144,7 +129,7 @@ private fun ZoneDao.initializeIfEmpty(): ZoneDao {
                             Coordinates(54.474352, 16.997261),
                             Coordinates(54.474003, 16.999666),
                             Coordinates(54.470362, 16.998206),
-                            Coordinates(54.470611, 16.995801),
+                            Coordinates(54.470611, 16.995801)
                         )
                     )
                 }
@@ -157,11 +142,11 @@ private fun VehicleDao.initializeIfEmpty(): VehicleDao {
     return this.apply {
         runBlocking {
             if (getAllVehicles().isEmpty()) {
-                repeat(100) {
+                repeat(200) {
                     launch {
                         insertVehicle(
                             code = it + 1,
-                            zoneCode = if (it in 0..50) 1 else 2,
+                            zoneCode = if (it in 0..100) 1 else 2,
                             batteryCharge = Random.nextInt(40, 100),
                             type = VehicleType.Scooter,
                             status = VehicleStatus.Available,
