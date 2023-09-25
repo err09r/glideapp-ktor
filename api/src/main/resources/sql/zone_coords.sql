@@ -1,7 +1,7 @@
 DO
 $$
     BEGIN
-        IF NOT exists (SELECT FROM zones) THEN
+        IF NOT exists (SELECT FROM zone_coordinates) THEN
 
 --             SL-R-1
 
