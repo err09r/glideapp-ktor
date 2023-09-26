@@ -4,6 +4,7 @@ import com.apsl.glideapp.common.dto.MapContentDto
 import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
+import com.apsl.glideapp.common.models.Empty
 import com.apsl.glideapp.features.config.GlideConfiguration
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
@@ -49,7 +50,7 @@ class MapController(
         .distinctUntilChanged()
 
     private suspend fun getCurrentMapContent(): MapContentDto {
-        val bounds = contentBounds.value ?: CoordinatesBounds.Undefined
+        val bounds = contentBounds.value ?: CoordinatesBounds.Empty
 
         val availableVehicles = vehicleDao.getAllAvailableVehicles()
             .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database

@@ -8,10 +8,10 @@ import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
-import com.apsl.glideapp.common.util.Geometry.calculateDistance
+import com.apsl.glideapp.common.models.asPairs
+import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
-import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.config.GlideConfiguration
 import com.apsl.glideapp.features.ride.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
@@ -109,7 +109,8 @@ class RideController(
 //        }
 
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
-        val distanceFromVehicle = calculateDistance(userLocation, Coordinates(vehicle.latitude, vehicle.longitude))
+        val distanceFromVehicle =
+            Geometry.calculateDistance(userLocation.asPair(), vehicle.latitude to vehicle.longitude)
 
         if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
             throw UserTooFarFromVehicleException()
@@ -144,7 +145,7 @@ class RideController(
         }
 
         if (latestSavedCoordinates != null) {
-            val newDistance = calculateDistance(latestSavedCoordinates, coordinates)
+            val newDistance = Geometry.calculateDistance(latestSavedCoordinates.asPair(), coordinates.asPair())
             val previousTotalDistance = rideDao.getRideById(rideUuid)?.distance ?: 0.0
             val newTotalDistance = previousTotalDistance + newDistance
             rideDao.updateRide(id = rideUuid, distance = newTotalDistance)
@@ -167,10 +168,11 @@ class RideController(
 
         val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking)
         val isInsideNoParkingZone = noParkingZones.any { zoneEntity ->
-            val zoneBounds = zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+            val zoneBounds = zoneCoordinatesDao
+                .getAllZoneCoordinatesByZoneCode(zoneEntity.code)
                 .map { Coordinates(it.latitude, it.longitude) }
 
-            userLocation.isInsidePolygon(zoneBounds)
+            Geometry.isInsidePolygon(vertices = zoneBounds.asPairs(), point = userLocation.asPair())
         }
 
         if (isInsideNoParkingZone) {

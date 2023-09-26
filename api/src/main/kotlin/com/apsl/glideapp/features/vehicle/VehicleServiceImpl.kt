@@ -3,7 +3,8 @@ package com.apsl.glideapp.features.vehicle
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
-import com.apsl.glideapp.common.util.isInsidePolygon
+import com.apsl.glideapp.common.models.asPairs
+import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import kotlin.random.Random
@@ -71,7 +72,7 @@ class VehicleServiceImpl(
             val generatedLatitude = Random.nextDouble(highestPoint, lowestPont)
             val generatedLongitude = Random.nextDouble(leftmostPoint, rightmostPoint)
             coordinates = Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
-        } while (!coordinates.isInsidePolygon(bounds))
+        } while (!Geometry.isInsidePolygon(vertices = bounds.asPairs(), point = coordinates.asPair()))
 
         return coordinates
     }
