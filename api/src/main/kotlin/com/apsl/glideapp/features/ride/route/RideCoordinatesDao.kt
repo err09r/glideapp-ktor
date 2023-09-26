@@ -1,4 +1,4 @@
-package com.apsl.glideapp.features.route
+package com.apsl.glideapp.features.ride.route
 
 import com.apsl.glideapp.common.util.UUID
 
