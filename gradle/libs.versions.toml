@@ -8,7 +8,7 @@ kotlinx-serialization = "1.6.0"
 
 commons-codec = "1.16.0"
 exposed = "0.43.0"
-glideapp-common = "0.1.0"
+glideapp-common = "0.1.4"
 gradleVersionsPlugin = "0.48.0"
 koin = "3.4.3"
 logback = "1.4.11"

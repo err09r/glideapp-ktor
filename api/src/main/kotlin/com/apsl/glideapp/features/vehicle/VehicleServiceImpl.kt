@@ -3,8 +3,10 @@ package com.apsl.glideapp.features.vehicle
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
-import com.apsl.glideapp.common.util.isInsidePolygon
+import com.apsl.glideapp.common.models.asPairs
+import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
@@ -18,7 +20,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 
-class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao: ZoneDao) : VehicleService {
+class VehicleServiceImpl(
+    private val vehicleDao: VehicleDao,
+    private val zoneDao: ZoneDao,
+    private val zoneCoordinatesDao: ZoneCoordinatesDao
+) : VehicleService {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -29,13 +35,20 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
             val newVehicles = vehicles.shuffled().take(6)
 
             val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
+            val zoneBounds = ridingZones.flatMap {
+                zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(it.code)
+            }
 
-            newVehicles.forEach {
+            newVehicles.forEach { vehicleEntity ->
+                val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
+                    bounds = zoneBounds.map { Coordinates(it.latitude, it.longitude) }
+                )
                 vehicleDao.updateVehicle(
-                    id = it.id,
+                    id = vehicleEntity.id,
                     batteryCharge = Random.nextInt(40, 101),
                     status = VehicleStatus.entries.random(),
-                    coordinates = generateCoordinatesWithinZoneBounds(ridingZones[it.zoneCode - 1].coordinates)
+                    latitude = latitude,
+                    longitude = longitude
                 )
             }
 
@@ -47,11 +60,11 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
         .flowOn(Dispatchers.IO)
         .shareIn(scope = scope, started = SharingStarted.Eagerly)
 
-    private fun generateCoordinatesWithinZoneBounds(zoneBounds: List<Coordinates>): Coordinates {
-        val leftmostPoint = zoneBounds.minOf { it.longitude }
-        val rightmostPoint = zoneBounds.maxOf { it.longitude }
-        val highestPoint = zoneBounds.minOf { it.latitude }
-        val lowestPont = zoneBounds.maxOf { it.latitude }
+    private fun generateCoordinatesWithinZoneBounds(bounds: List<Coordinates>): Coordinates {
+        val leftmostPoint = bounds.minOf { it.longitude }
+        val rightmostPoint = bounds.maxOf { it.longitude }
+        val highestPoint = bounds.minOf { it.latitude }
+        val lowestPont = bounds.maxOf { it.latitude }
 
         var coordinates: Coordinates
 
@@ -59,7 +72,7 @@ class VehicleServiceImpl(private val vehicleDao: VehicleDao, private val zoneDao
             val generatedLatitude = Random.nextDouble(highestPoint, lowestPont)
             val generatedLongitude = Random.nextDouble(leftmostPoint, rightmostPoint)
             coordinates = Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
-        } while (!coordinates.isInsidePolygon(zoneBounds))
+        } while (!Geometry.isInsidePolygon(vertices = bounds.asPairs(), point = coordinates.asPair()))
 
         return coordinates
     }

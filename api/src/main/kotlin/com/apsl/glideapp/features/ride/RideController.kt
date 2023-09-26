@@ -8,15 +8,16 @@ import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
-import com.apsl.glideapp.common.util.Geometry.calculateDistance
+import com.apsl.glideapp.common.models.asPairs
+import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
-import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.config.GlideConfiguration
-import com.apsl.glideapp.features.route.RideCoordinatesDao
+import com.apsl.glideapp.features.ride.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.NoActiveRidesException
 import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
@@ -31,6 +32,7 @@ class RideController(
     private val rideDao: RideDao,
     private val rideCoordinatesDao: RideCoordinatesDao,
     private val zoneDao: ZoneDao,
+    private val zoneCoordinatesDao: ZoneCoordinatesDao,
     private val vehicleDao: VehicleDao,
     private val transactionDao: TransactionDao
 ) {
@@ -107,7 +109,8 @@ class RideController(
 //        }
 
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
-        val distanceFromVehicle = calculateDistance(userLocation, vehicle.coordinates)
+        val distanceFromVehicle =
+            Geometry.calculateDistance(userLocation.asPair(), vehicle.latitude to vehicle.longitude)
 
         if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
             throw UserTooFarFromVehicleException()
@@ -142,7 +145,7 @@ class RideController(
         }
 
         if (latestSavedCoordinates != null) {
-            val newDistance = calculateDistance(latestSavedCoordinates, coordinates)
+            val newDistance = Geometry.calculateDistance(latestSavedCoordinates.asPair(), coordinates.asPair())
             val previousTotalDistance = rideDao.getRideById(rideUuid)?.distance ?: 0.0
             val newTotalDistance = previousTotalDistance + newDistance
             rideDao.updateRide(id = rideUuid, distance = newTotalDistance)
@@ -164,7 +167,13 @@ class RideController(
         val ride = rideDao.getRideById(rideUuid) ?: error("")
 
         val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking)
-        val isInsideNoParkingZone = noParkingZones.any { userLocation.isInsidePolygon(it.coordinates) }
+        val isInsideNoParkingZone = noParkingZones.any { zoneEntity ->
+            val zoneBounds = zoneCoordinatesDao
+                .getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+                .map { Coordinates(it.latitude, it.longitude) }
+
+            Geometry.isInsidePolygon(vertices = zoneBounds.asPairs(), point = userLocation.asPair())
+        }
 
         if (isInsideNoParkingZone) {
             throw UserInsideNoParkingZoneException()

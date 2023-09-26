@@ -1,12 +1,10 @@
 package com.apsl.glideapp.features.vehicle
 
-import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.VehicleType
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
-import com.apsl.glideapp.database.converters.CoordinatesConverter
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -24,7 +22,8 @@ class VehicleDaoImpl : VehicleDao {
             batteryCharge = this[VehiclesTable.batteryCharge],
             type = this[VehiclesTable.type],
             status = this[VehiclesTable.status],
-            coordinates = CoordinatesConverter.StringToValue(this[VehiclesTable.coordinates]),
+            latitude = this[VehiclesTable.latitude],
+            longitude = this[VehiclesTable.longitude],
             createdAt = this[VehiclesTable.createdAt],
             updatedAt = this[VehiclesTable.updatedAt]
         )
@@ -59,7 +58,8 @@ class VehicleDaoImpl : VehicleDao {
         batteryCharge: Int,
         type: VehicleType,
         status: VehicleStatus,
-        coordinates: Coordinates
+        latitude: Double,
+        longitude: Double,
     ): VehicleEntity? = query {
         val insertStatement = VehiclesTable.insert {
             it[VehiclesTable.code] = code
@@ -67,7 +67,8 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.batteryCharge] = batteryCharge
             it[VehiclesTable.type] = type
             it[VehiclesTable.status] = status
-            it[VehiclesTable.coordinates] = CoordinatesConverter.ValueToString(coordinates)
+            it[VehiclesTable.latitude] = latitude
+            it[VehiclesTable.longitude] = longitude
             it[VehiclesTable.createdAt] = LocalDateTime.now()
             it[VehiclesTable.updatedAt] = LocalDateTime.now()
         }
@@ -78,12 +79,14 @@ class VehicleDaoImpl : VehicleDao {
         id: UUID,
         batteryCharge: Int,
         status: VehicleStatus,
-        coordinates: Coordinates
+        latitude: Double,
+        longitude: Double
     ): Boolean = query {
         VehiclesTable.update({ VehiclesTable.id eq id }) {
             it[VehiclesTable.batteryCharge] = batteryCharge
             it[VehiclesTable.status] = status
-            it[VehiclesTable.coordinates] = CoordinatesConverter.ValueToString(coordinates)
+            it[VehiclesTable.latitude] = latitude
+            it[VehiclesTable.longitude] = longitude
             it[VehiclesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }

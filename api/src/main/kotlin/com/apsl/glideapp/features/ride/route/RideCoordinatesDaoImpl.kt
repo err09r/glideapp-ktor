@@ -1,4 +1,4 @@
-package com.apsl.glideapp.features.route
+package com.apsl.glideapp.features.ride.route
 
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.now
@@ -46,8 +46,8 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
             it[RideCoordinatesTable.rideId] = rideId
             it[RideCoordinatesTable.latitude] = latitude
             it[RideCoordinatesTable.longitude] = longitude
-            it[RideCoordinatesTable.createdAt] = LocalDateTime.now()
-            it[RideCoordinatesTable.updatedAt] = LocalDateTime.now()
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toRideCoordinatesEntity()
     }

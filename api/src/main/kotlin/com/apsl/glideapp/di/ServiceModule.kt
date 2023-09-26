@@ -5,5 +5,5 @@ import com.apsl.glideapp.features.vehicle.VehicleServiceImpl
 import org.koin.dsl.module
 
 val serviceModule = module {
-    single<VehicleService> { VehicleServiceImpl(get(), get()) }
+    single<VehicleService> { VehicleServiceImpl(get(), get(), get()) }
 }

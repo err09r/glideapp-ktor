@@ -1,10 +1,8 @@
 package com.apsl.glideapp.features.zone
 
-import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.common.util.now
 import com.apsl.glideapp.database.DatabaseFactory.query
-import com.apsl.glideapp.database.converters.CoordinatesConverter
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
@@ -19,7 +17,6 @@ class ZoneDaoImpl : ZoneDao {
             code = this[ZonesTable.code],
             title = this[ZonesTable.title],
             type = this[ZonesTable.type],
-            coordinates = CoordinatesConverter.StringToValueList(this[ZonesTable.coordinates]),
             createdAt = this[ZonesTable.createdAt],
             updatedAt = this[ZonesTable.updatedAt]
         )
@@ -44,17 +41,11 @@ class ZoneDaoImpl : ZoneDao {
             .singleOrNull()
     }
 
-    override suspend fun insertZone(
-        code: Int,
-        title: String,
-        type: ZoneType,
-        coordinates: List<Coordinates>
-    ): ZoneEntity? = query {
+    override suspend fun insertZone(code: Int, title: String, type: ZoneType): ZoneEntity? = query {
         val insertStatement = ZonesTable.insert {
             it[ZonesTable.code] = code
             it[ZonesTable.title] = title
             it[ZonesTable.type] = type
-            it[ZonesTable.coordinates] = CoordinatesConverter.ValueListToString(coordinates)
             it[ZonesTable.createdAt] = LocalDateTime.now()
             it[ZonesTable.updatedAt] = LocalDateTime.now()
         }
