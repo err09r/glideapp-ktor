@@ -52,7 +52,7 @@ class MapController(
         val bounds = contentBounds.value ?: CoordinatesBounds.Undefined
 
         val availableVehicles = vehicleDao.getAllAvailableVehicles()
-            .filter { it.coordinates within bounds } //TODO: Change to filtering in database
+            .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database
             .map { entity ->
                 val unlockingFee = GlideConfiguration.unlockingFees[entity.type] ?: error("")
                 val farePerMinute = GlideConfiguration.faresPerMinute[entity.type] ?: error("")
@@ -62,7 +62,7 @@ class MapController(
                     batteryCharge = entity.batteryCharge,
                     type = entity.type,
                     status = entity.status,
-                    coordinates = entity.coordinates,
+                    coordinates = Coordinates(entity.latitude, entity.longitude),
                     unlockingFee = unlockingFee,
                     farePerMinute = farePerMinute
                 )
@@ -71,14 +71,3 @@ class MapController(
         return MapContentDto(availableVehicles = availableVehicles)
     }
 }
-
-private infix fun Coordinates.within(bounds: CoordinatesBounds): Boolean {
-    return this.latitude >= bounds.southwest.latitude && this.latitude <= bounds.northeast.latitude &&
-            this.longitude >= bounds.southwest.longitude && this.longitude <= bounds.northeast.latitude
-}
-
-private val CoordinatesBounds.Companion.Undefined
-    get() = CoordinatesBounds(
-        southwest = Coordinates(0.0, 0.0),
-        northeast = Coordinates(0.0, 0.0)
-    )
