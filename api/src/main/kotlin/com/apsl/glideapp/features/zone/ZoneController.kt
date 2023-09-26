@@ -1,24 +1,32 @@
 package com.apsl.glideapp.features.zone
 
 import com.apsl.glideapp.common.dto.ZoneDto
+import com.apsl.glideapp.common.models.Coordinates
+import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
-class ZoneController(private val zoneDao: ZoneDao) {
+class ZoneController(
+    private val zoneDao: ZoneDao,
+    private val zoneCoordinatesDao: ZoneCoordinatesDao
+) {
 
     suspend fun getAllZones(): Result<List<ZoneDto>> = runCatching {
-        zoneDao.getAllZones().mapToDtos()
-    }
-
-    private fun Iterable<ZoneEntity>.mapToDtos(): List<ZoneDto> {
-        return this.map { it.toDto() }
-    }
-
-    private fun ZoneEntity.toDto(): ZoneDto {
-        return ZoneDto(
-            id = this.id.toString(),
-            code = this.code,
-            title = this.title,
-            type = this.type,
-            coordinates = this.coordinates
-        )
+        coroutineScope {
+            val zoneEntities = zoneDao.getAllZones()
+            zoneEntities.map { zoneEntity ->
+                async {
+                    val zoneCoordinatesEntity = zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+                    ZoneDto(
+                        id = zoneEntity.id.toString(),
+                        code = zoneEntity.code,
+                        title = zoneEntity.title,
+                        type = zoneEntity.type,
+                        coordinates = zoneCoordinatesEntity.map { Coordinates(it.latitude, it.longitude) }
+                    )
+                }
+            }.awaitAll()
+        }
     }
 }
