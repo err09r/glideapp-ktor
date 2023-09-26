@@ -13,10 +13,11 @@ import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
 import com.apsl.glideapp.common.util.isInsidePolygon
 import com.apsl.glideapp.features.config.GlideConfiguration
-import com.apsl.glideapp.features.route.RideCoordinatesDao
+import com.apsl.glideapp.features.ride.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.NoActiveRidesException
 import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
@@ -31,6 +32,7 @@ class RideController(
     private val rideDao: RideDao,
     private val rideCoordinatesDao: RideCoordinatesDao,
     private val zoneDao: ZoneDao,
+    private val zoneCoordinatesDao: ZoneCoordinatesDao,
     private val vehicleDao: VehicleDao,
     private val transactionDao: TransactionDao
 ) {
@@ -107,7 +109,7 @@ class RideController(
 //        }
 
         val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
-        val distanceFromVehicle = calculateDistance(userLocation, vehicle.coordinates)
+        val distanceFromVehicle = calculateDistance(userLocation, Coordinates(vehicle.latitude, vehicle.longitude))
 
         if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
             throw UserTooFarFromVehicleException()
@@ -164,7 +166,12 @@ class RideController(
         val ride = rideDao.getRideById(rideUuid) ?: error("")
 
         val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking)
-        val isInsideNoParkingZone = noParkingZones.any { userLocation.isInsidePolygon(it.coordinates) }
+        val isInsideNoParkingZone = noParkingZones.any { zoneEntity ->
+            val zoneBounds = zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+                .map { Coordinates(it.latitude, it.longitude) }
+
+            userLocation.isInsidePolygon(zoneBounds)
+        }
 
         if (isInsideNoParkingZone) {
             throw UserInsideNoParkingZoneException()
