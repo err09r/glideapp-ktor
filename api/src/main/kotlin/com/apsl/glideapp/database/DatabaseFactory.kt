@@ -1,11 +1,13 @@
 package com.apsl.glideapp.database
 
 import com.apsl.glideapp.features.ride.RidesTable
-import com.apsl.glideapp.features.route.RideCoordinatesTable
+import com.apsl.glideapp.features.ride.route.RideCoordinatesTable
 import com.apsl.glideapp.features.transaction.TransactionsTable
 import com.apsl.glideapp.features.user.UsersTable
 import com.apsl.glideapp.features.vehicle.VehiclesTable
 import com.apsl.glideapp.features.zone.ZonesTable
+import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesTable
+import com.apsl.glideapp.utils.readFileFromResources
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
@@ -23,12 +25,22 @@ object DatabaseFactory {
         transaction(database) {
             SchemaUtils.create(
                 ZonesTable,
+                ZoneCoordinatesTable,
                 VehiclesTable,
-                UsersTable,
                 RidesTable,
                 RideCoordinatesTable,
+                UsersTable,
                 TransactionsTable
             )
+
+            initializeTables(ZonesTable, ZoneCoordinatesTable, VehiclesTable)
+        }
+    }
+
+    private fun Transaction.initializeTables(vararg tables: InitializableTable) {
+        tables.forEach {
+            val statement = readFileFromResources(path = it.initSqlFilePath)
+            exec(statement)
         }
     }
 
