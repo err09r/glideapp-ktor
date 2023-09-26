@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        json(Json(DefaultJson) { decodeEnumsCaseInsensitive = true })
+        val json = Json(DefaultJson) { decodeEnumsCaseInsensitive = true }
+        json(json)
     }
 }
