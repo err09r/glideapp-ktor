@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.dto.RideEventDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
+import com.apsl.glideapp.common.models.Route
 import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
@@ -234,6 +235,9 @@ class RideController(
             limit = rideLimit,
             offset = offset
         ).mapIndexed { index, entity ->
+            val route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+                Coordinates(latitude = it.latitude, longitude = it.longitude)
+            }
             RideDto(
                 id = entity.id.toString(),
                 key = index + offset.toInt() + 1,
@@ -241,11 +245,7 @@ class RideController(
                 finishAddress = entity.finishAddress,
                 startDateTime = entity.startDateTime,
                 finishDateTime = entity.finishDateTime ?: entity.startDateTime,
-                route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
-                    Coordinates(latitude = it.latitude, longitude = it.longitude)
-                },
-                distance = entity.distance,
-                averageSpeed = entity.averageSpeed
+                route = Route(route)
             )
         }
     }
@@ -253,6 +253,9 @@ class RideController(
     suspend fun getRideById(rideId: String?) = runCatching {
         requireNotNull(rideId)
         val entity = rideDao.getRideById(UUID.fromString(rideId)) ?: error("")
+        val route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+            Coordinates(latitude = it.latitude, longitude = it.longitude)
+        }
         RideDto(
             id = entity.id.toString(),
             key = null,
@@ -260,11 +263,7 @@ class RideController(
             finishAddress = entity.finishAddress,
             startDateTime = entity.startDateTime,
             finishDateTime = entity.finishDateTime ?: entity.startDateTime,
-            route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
-                Coordinates(latitude = it.latitude, longitude = it.longitude)
-            },
-            distance = entity.distance,
-            averageSpeed = entity.averageSpeed
+            route = Route(route)
         )
     }
 }
