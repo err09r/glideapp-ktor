@@ -1,3 +1,5 @@
+@file:Suppress("Unused")
+
 package com.apsl.glideapp
 
 import com.apsl.glideapp.database.DatabaseFactory
@@ -12,7 +14,6 @@ import io.ktor.server.application.Application
 
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
-@Suppress("Unused")
 fun Application.module() {
     DatabaseFactory.init(environment.config)
     configureInjection()
