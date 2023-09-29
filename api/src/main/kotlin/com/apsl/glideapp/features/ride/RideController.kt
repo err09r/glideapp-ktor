@@ -13,7 +13,7 @@ import com.apsl.glideapp.common.models.asPairs
 import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.common.util.capitalized
-import com.apsl.glideapp.features.config.GlideConfiguration
+import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.ride.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
@@ -35,7 +35,8 @@ class RideController(
     private val zoneDao: ZoneDao,
     private val zoneCoordinatesDao: ZoneCoordinatesDao,
     private val vehicleDao: VehicleDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val glideConfig: GlideConfig
 ) {
 
     suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
@@ -113,7 +114,7 @@ class RideController(
         val distanceFromVehicle =
             Geometry.calculateDistance(userLocation.asPair(), vehicle.latitude to vehicle.longitude)
 
-        if (distanceFromVehicle > GlideConfiguration.UNLOCK_DISTANCE) {
+        if (distanceFromVehicle > glideConfig.unlockDistance) {
             throw UserTooFarFromVehicleException()
         }
 
@@ -193,8 +194,8 @@ class RideController(
         //TODO: move to separate function (unlock price + price per minute)
         //Remove hardcoded countryCode and calculate amount based on user location
         val vehicle = vehicleDao.getVehicleById(ride.vehicleId) ?: error("")
-        val unlockingFee = GlideConfiguration.unlockingFees[vehicle.type] ?: error("")
-        val farePerMinute = GlideConfiguration.faresPerMinute[vehicle.type] ?: error("")
+        val unlockingFee = glideConfig.unlockingFees[vehicle.type] ?: error("")
+        val farePerMinute = glideConfig.faresPerMinute[vehicle.type] ?: error("")
         val minutes = durationInSeconds.seconds.inWholeMinutes
         //TODO: replace with 'unlockingFee' and 'farePerMinute' of each vehicle/zone
         val amount = -(unlockingFee + (farePerMinute * minutes))

@@ -5,7 +5,7 @@ import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
 import com.apsl.glideapp.common.models.Empty
-import com.apsl.glideapp.features.config.GlideConfiguration
+import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
 
 class MapController(
     private val vehicleDao: VehicleDao,
-    private val vehicleService: VehicleService
+    private val vehicleService: VehicleService,
+    private val glideConfig: GlideConfig
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var mapContentJob: Job? = null
@@ -55,8 +56,8 @@ class MapController(
         val availableVehicles = vehicleDao.getAllAvailableVehicles()
             .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database
             .map { entity ->
-                val unlockingFee = GlideConfiguration.unlockingFees[entity.type] ?: error("")
-                val farePerMinute = GlideConfiguration.faresPerMinute[entity.type] ?: error("")
+                val unlockingFee = glideConfig.unlockingFees[entity.type] ?: error("")
+                val farePerMinute = glideConfig.faresPerMinute[entity.type] ?: error("")
                 VehicleDto(
                     id = entity.id.toString(),
                     code = entity.code,

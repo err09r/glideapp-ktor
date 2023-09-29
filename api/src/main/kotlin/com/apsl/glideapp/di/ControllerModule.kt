@@ -1,6 +1,7 @@
 package com.apsl.glideapp.di
 
 import com.apsl.glideapp.features.auth.AuthController
+import com.apsl.glideapp.features.config.AppConfigController
 import com.apsl.glideapp.features.map.MapController
 import com.apsl.glideapp.features.ride.RideController
 import com.apsl.glideapp.features.transaction.TransactionController
@@ -16,4 +17,5 @@ val controllerModule = module {
     singleOf(::MapController)
     singleOf(::RideController)
     singleOf(::TransactionController)
+    singleOf(::AppConfigController)
 }
