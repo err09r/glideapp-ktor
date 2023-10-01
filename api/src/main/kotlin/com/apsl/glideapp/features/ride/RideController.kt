@@ -246,7 +246,8 @@ class RideController(
                 finishAddress = entity.finishAddress,
                 startDateTime = entity.startDateTime,
                 finishDateTime = entity.finishDateTime ?: entity.startDateTime,
-                route = Route(route)
+                route = Route(route),
+                averageSpeed = entity.averageSpeed
             )
         }
     }
@@ -264,7 +265,8 @@ class RideController(
             finishAddress = entity.finishAddress,
             startDateTime = entity.startDateTime,
             finishDateTime = entity.finishDateTime ?: entity.startDateTime,
-            route = Route(route)
+            route = Route(route),
+            averageSpeed = entity.averageSpeed
         )
     }
 }
