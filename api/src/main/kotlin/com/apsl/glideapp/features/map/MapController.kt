@@ -1,3 +1,5 @@
+@file:OptIn(FlowPreview::class)
+
 package com.apsl.glideapp.features.map
 
 import com.apsl.glideapp.common.dto.MapContentDto
@@ -8,12 +10,15 @@ import com.apsl.glideapp.common.models.Empty
 import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flowOn
@@ -47,6 +52,7 @@ class MapController(
         .map { getCurrentMapContent() }
         .onStart { emit(getCurrentMapContent()) }
         .filterNot { it.availableVehicles.isEmpty() }
+        .debounce(2.seconds)
         .flowOn(Dispatchers.IO)
         .distinctUntilChanged()
 
