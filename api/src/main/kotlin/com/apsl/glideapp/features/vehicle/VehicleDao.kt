@@ -7,7 +7,7 @@ import com.apsl.glideapp.common.util.UUID
 interface VehicleDao {
     suspend fun getAllVehicles(): List<VehicleEntity>
     suspend fun getVehiclesByZoneCode(code: Int): List<VehicleEntity>
-    suspend fun getVehiclesByStatus(): List<VehicleEntity>
+    suspend fun getVehiclesByStatus(status: VehicleStatus): List<VehicleEntity>
     suspend fun getVehicleById(id: UUID): VehicleEntity?
     suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean
     suspend fun updateVehicle(

@@ -4,7 +4,7 @@ import com.apsl.glideapp.common.dto.MapContentDto
 import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
-import com.apsl.glideapp.common.models.Empty
+import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
@@ -52,10 +52,10 @@ class MapController(
         .distinctUntilChanged()
 
     private suspend fun getCurrentMapContent(): MapContentDto {
-        val bounds = contentBounds.value ?: CoordinatesBounds.Empty
+        val bounds = contentBounds.value ?: return MapContentDto(emptyList())
 
-        val availableVehicles = vehicleDao.getVehiclesByStatus()
-            .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database
+        val availableVehicles = vehicleDao.getVehiclesByStatus(VehicleStatus.Available)
+            .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) }
             .map { entity ->
                 val unlockingFee = glideConfig.unlockingFees[entity.type] ?: error("")
                 val farePerMinute = glideConfig.faresPerMinute[entity.type] ?: error("")

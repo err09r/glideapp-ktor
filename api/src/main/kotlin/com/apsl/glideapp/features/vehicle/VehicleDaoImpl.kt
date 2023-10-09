@@ -39,9 +39,9 @@ class VehicleDaoImpl : VehicleDao {
             .map { it.toVehicleEntity() }
     }
 
-    override suspend fun getVehiclesByStatus(): List<VehicleEntity> = query {
+    override suspend fun getVehiclesByStatus(status: VehicleStatus): List<VehicleEntity> = query {
         VehiclesTable
-            .select { VehiclesTable.status eq VehicleStatus.Available }
+            .select { VehiclesTable.status eq status }
             .map { it.toVehicleEntity() }
     }
 
