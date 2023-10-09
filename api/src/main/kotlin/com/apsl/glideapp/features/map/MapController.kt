@@ -1,3 +1,5 @@
+@file:OptIn(FlowPreview::class)
+
 package com.apsl.glideapp.features.map
 
 import com.apsl.glideapp.common.dto.MapContentDto
@@ -5,15 +7,18 @@ import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.CoordinatesBounds
 import com.apsl.glideapp.common.models.Empty
-import com.apsl.glideapp.features.config.GlideConfiguration
+import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.flowOn
@@ -24,7 +29,8 @@ import kotlinx.coroutines.launch
 
 class MapController(
     private val vehicleDao: VehicleDao,
-    private val vehicleService: VehicleService
+    private val vehicleService: VehicleService,
+    private val glideConfig: GlideConfig
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var mapContentJob: Job? = null
@@ -46,6 +52,7 @@ class MapController(
         .map { getCurrentMapContent() }
         .onStart { emit(getCurrentMapContent()) }
         .filterNot { it.availableVehicles.isEmpty() }
+        .debounce(2.seconds)
         .flowOn(Dispatchers.IO)
         .distinctUntilChanged()
 
@@ -55,8 +62,8 @@ class MapController(
         val availableVehicles = vehicleDao.getAllAvailableVehicles()
             .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database
             .map { entity ->
-                val unlockingFee = GlideConfiguration.unlockingFees[entity.type] ?: error("")
-                val farePerMinute = GlideConfiguration.faresPerMinute[entity.type] ?: error("")
+                val unlockingFee = glideConfig.unlockingFees[entity.type] ?: error("")
+                val farePerMinute = glideConfig.faresPerMinute[entity.type] ?: error("")
                 VehicleDto(
                     id = entity.id.toString(),
                     code = entity.code,
