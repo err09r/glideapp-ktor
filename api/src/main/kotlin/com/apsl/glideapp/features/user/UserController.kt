@@ -19,9 +19,9 @@ class UserController(
         val userUuid = UUID.fromString(id)
 
         val userEntity = userDao.getUserById(userUuid) ?: throw UserNotFoundException()
-        val finishedRideEntities = rideDao.getAllRidesByStatusAndUserId(RideStatus.Finished, userUuid)
+        val finishedRideEntities = rideDao.getRidesByStatusAndUserId(RideStatus.Finished, userUuid)
 
-        val balance = transactionDao.getAllTransactionsAmountSumByUserId(userUuid)
+        val balance = transactionDao.getTransactionsAmountSumByUserId(userUuid)
 
         UserDto(
             id = userEntity.id.toString(),

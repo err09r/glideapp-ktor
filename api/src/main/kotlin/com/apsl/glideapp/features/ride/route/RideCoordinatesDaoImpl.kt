@@ -31,7 +31,7 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
             .singleOrNull()
     }
 
-    override suspend fun getAllRideCoordinatesByRideId(rideId: UUID): List<RideCoordinatesEntity> = query {
+    override suspend fun getRideCoordinatesByRideId(rideId: UUID): List<RideCoordinatesEntity> = query {
         RideCoordinatesTable
             .select { RideCoordinatesTable.rideId eq rideId }
             .map { it.toRideCoordinatesEntity() }

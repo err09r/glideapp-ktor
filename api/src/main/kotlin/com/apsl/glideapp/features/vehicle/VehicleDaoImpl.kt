@@ -33,13 +33,13 @@ class VehicleDaoImpl : VehicleDao {
         VehiclesTable.selectAll().map { it.toVehicleEntity() }
     }
 
-    override suspend fun getAllVehiclesByZoneCode(code: Int): List<VehicleEntity> = query {
+    override suspend fun getVehiclesByZoneCode(code: Int): List<VehicleEntity> = query {
         VehiclesTable
             .select { VehiclesTable.zoneCode eq code }
             .map { it.toVehicleEntity() }
     }
 
-    override suspend fun getAllAvailableVehicles(): List<VehicleEntity> = query {
+    override suspend fun getVehiclesByStatus(): List<VehicleEntity> = query {
         VehiclesTable
             .select { VehiclesTable.status eq VehicleStatus.Available }
             .map { it.toVehicleEntity() }

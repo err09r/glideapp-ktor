@@ -23,7 +23,7 @@ class TransactionDaoImpl : TransactionDao {
         )
     }
 
-    override suspend fun getAllTransactionsByUserId(userId: UUID): List<TransactionEntity> = query {
+    override suspend fun getTransactionsByUserId(userId: UUID): List<TransactionEntity> = query {
         TransactionsTable
             .select { TransactionsTable.userId eq userId }
             .orderBy(column = TransactionsTable.createdAt, order = SortOrder.DESC)
@@ -46,7 +46,7 @@ class TransactionDaoImpl : TransactionDao {
             .map { it.toTransactionEntity() }
     }
 
-    override suspend fun getAllTransactionsAmountSumByUserId(userId: UUID): Double = query {
+    override suspend fun getTransactionsAmountSumByUserId(userId: UUID): Double = query {
         TransactionsTable
             .select { TransactionsTable.userId eq userId }
             .sumOf { it.toTransactionEntity().amount }

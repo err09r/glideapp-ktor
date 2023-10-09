@@ -153,7 +153,7 @@ class RideController(
             rideDao.updateRide(id = rideUuid, distance = newTotalDistance)
         }
 
-        return rideCoordinatesDao.getAllRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
+        return rideCoordinatesDao.getRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
             Coordinates(latitude = entity.latitude, longitude = entity.longitude)
         }
     }
@@ -171,7 +171,7 @@ class RideController(
         val noParkingZones = zoneDao.getZonesByType(ZoneType.NoParking)
         val isInsideNoParkingZone = noParkingZones.any { zoneEntity ->
             val zoneBounds = zoneCoordinatesDao
-                .getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+                .getZoneCoordinatesByZoneCode(zoneEntity.code)
                 .map { Coordinates(it.latitude, it.longitude) }
 
             Geometry.isInsidePolygon(vertices = zoneBounds.asPairs(), point = userLocation.asPair())
@@ -219,7 +219,7 @@ class RideController(
         vehicleDao.updateVehicle(id = ride.vehicleId, status = VehicleStatus.Available)
     }
 
-    suspend fun getAllRidesByStatusAndUserId(
+    suspend fun getRidesByStatusAndUserId(
         status: String?,
         userId: String?,
         page: String? = null,
@@ -236,7 +236,7 @@ class RideController(
             limit = rideLimit,
             offset = offset
         ).mapIndexed { index, entity ->
-            val route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+            val route = rideCoordinatesDao.getRideCoordinatesByRideId(entity.id).map {
                 Coordinates(latitude = it.latitude, longitude = it.longitude)
             }
             RideDto(
@@ -255,7 +255,7 @@ class RideController(
     suspend fun getRideById(rideId: String?) = runCatching {
         requireNotNull(rideId)
         val entity = rideDao.getRideById(UUID.fromString(rideId)) ?: error("")
-        val route = rideCoordinatesDao.getAllRideCoordinatesByRideId(entity.id).map {
+        val route = rideCoordinatesDao.getRideCoordinatesByRideId(entity.id).map {
             Coordinates(latitude = it.latitude, longitude = it.longitude)
         }
         RideDto(

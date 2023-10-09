@@ -36,7 +36,7 @@ class VehicleServiceImpl(
 
             val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
             val zoneBounds = ridingZones.flatMap {
-                zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(it.code)
+                zoneCoordinatesDao.getZoneCoordinatesByZoneCode(it.code)
             }
 
             newVehicles.forEach { vehicleEntity ->

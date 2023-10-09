@@ -31,7 +31,7 @@ class RideDaoImpl : RideDao {
         )
     }
 
-    override suspend fun getAllRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
+    override suspend fun getRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
         RidesTable
             .select { (RidesTable.userId eq userId) and (RidesTable.status eq status) }
             .orderBy(column = RidesTable.updatedAt, order = SortOrder.DESC)

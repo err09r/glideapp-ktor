@@ -30,7 +30,7 @@ class ZoneCoordinatesDaoImpl : ZoneCoordinatesDao {
             .singleOrNull()
     }
 
-    override suspend fun getAllZoneCoordinatesByZoneCode(zoneCode: Int): List<ZoneCoordinatesEntity> = query {
+    override suspend fun getZoneCoordinatesByZoneCode(zoneCode: Int): List<ZoneCoordinatesEntity> = query {
         ZoneCoordinatesTable
             .select { ZoneCoordinatesTable.zoneCode eq zoneCode }
             .map { it.toZoneCoordinatesEntity() }

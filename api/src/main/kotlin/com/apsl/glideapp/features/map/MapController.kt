@@ -54,7 +54,7 @@ class MapController(
     private suspend fun getCurrentMapContent(): MapContentDto {
         val bounds = contentBounds.value ?: CoordinatesBounds.Empty
 
-        val availableVehicles = vehicleDao.getAllAvailableVehicles()
+        val availableVehicles = vehicleDao.getVehiclesByStatus()
             .filter { bounds.contains(Coordinates(it.latitude, it.longitude)) } //TODO: Change to filtering in database
             .map { entity ->
                 val unlockingFee = glideConfig.unlockingFees[entity.type] ?: error("")

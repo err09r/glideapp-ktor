@@ -18,7 +18,7 @@ class ZoneController(
             val zoneEntities = zoneDao.getAllZones()
             zoneEntities.map { zoneEntity ->
                 async {
-                    val zoneCoordinatesEntity = zoneCoordinatesDao.getAllZoneCoordinatesByZoneCode(zoneEntity.code)
+                    val zoneCoordinatesEntity = zoneCoordinatesDao.getZoneCoordinatesByZoneCode(zoneEntity.code)
                     val zoneBorder = zoneCoordinatesEntity.map { Coordinates(it.latitude, it.longitude) }
                     ZoneDto(
                         id = zoneEntity.id.toString(),

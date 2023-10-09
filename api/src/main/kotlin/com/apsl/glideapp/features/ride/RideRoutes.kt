@@ -23,7 +23,7 @@ fun Route.rideRoutes() {
     val rideController: RideController by inject()
     route("ride") {
         observeRideRoute(rideController)
-        getAllRidesByStatusAndUserIdRoute(rideController)
+        getRidesByStatusAndUserIdRoute(rideController)
         getRideByIdRoute(rideController)
     }
 }
@@ -57,14 +57,14 @@ private fun Route.observeRideRoute(rideController: RideController) {
     }
 }
 
-private fun Route.getAllRidesByStatusAndUserIdRoute(rideController: RideController) {
+private fun Route.getRidesByStatusAndUserIdRoute(rideController: RideController) {
     get {
         val userId = JwtUtils.getUserId(call)
         val rideStatus = call.request.queryParameters["status"]
         val page = call.request.queryParameters["page"]
         val limit = call.request.queryParameters["limit"]
 
-        rideController.getAllRidesByStatusAndUserId(
+        rideController.getRidesByStatusAndUserId(
             status = rideStatus,
             userId = userId,
             page = page,
