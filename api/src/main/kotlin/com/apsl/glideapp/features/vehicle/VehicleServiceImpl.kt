@@ -6,7 +6,9 @@ import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.common.models.asPairs
 import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.features.zone.ZoneDao
+import com.apsl.glideapp.features.zone.ZoneEntity
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
+import com.apsl.glideapp.utils.logi
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
@@ -28,21 +30,34 @@ class VehicleServiceImpl(
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    init {
+        logi("Vehicle service created")
+    }
+
     override val vehicleListChanges = flow {
         delay(15.seconds)
+
+        val noParkingZoneCodes = zoneDao.getZonesByType(ZoneType.NoParking).map(ZoneEntity::code)
+        val noParkingZoneCoordinates = noParkingZoneCodes.associateWith { zoneCode ->
+            zoneCoordinatesDao
+                .getZoneCoordinatesByZoneCode(zoneCode)
+                .map { Coordinates(it.latitude, it.longitude) }
+        }
+
         while (currentCoroutineContext().isActive) {
             val vehicles = vehicleDao.getAllVehicles()
             val newVehicles = vehicles.shuffled().take(6)
 
-            val ridingZones = zoneDao.getZonesByType(ZoneType.Riding)
-            val zoneBounds = ridingZones.flatMap {
-                zoneCoordinatesDao.getZoneCoordinatesByZoneCode(it.code)
-            }
-
             newVehicles.forEach { vehicleEntity ->
+                val zoneBounds = zoneCoordinatesDao
+                    .getZoneCoordinatesByZoneCode(vehicleEntity.zoneCode)
+                    .map { Coordinates(it.latitude, it.longitude) }
+
                 val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
-                    bounds = zoneBounds.map { Coordinates(it.latitude, it.longitude) }
+                    zoneBounds = zoneBounds,
+                    exclusionZoneBounds = noParkingZoneCoordinates
                 )
+
                 vehicleDao.updateVehicle(
                     id = vehicleEntity.id,
                     batteryCharge = Random.nextInt(40, 101),
@@ -60,20 +75,33 @@ class VehicleServiceImpl(
         .flowOn(Dispatchers.IO)
         .shareIn(scope = scope, started = SharingStarted.Eagerly)
 
-    private fun generateCoordinatesWithinZoneBounds(bounds: List<Coordinates>): Coordinates {
-        val leftmostPoint = bounds.minOf { it.longitude }
-        val rightmostPoint = bounds.maxOf { it.longitude }
-        val highestPoint = bounds.minOf { it.latitude }
-        val lowestPont = bounds.maxOf { it.latitude }
+    private fun generateCoordinatesWithinZoneBounds(
+        zoneBounds: List<Coordinates>,
+        exclusionZoneBounds: Map<Int, List<Coordinates>>
+    ): Coordinates {
+        val topmostLatitude = zoneBounds.maxOf { it.latitude }
+        val bottommostLatitude = zoneBounds.minOf { it.latitude }
+        val leftmostLongitude = zoneBounds.minOf { it.longitude }
+        val rightmostLongitude = zoneBounds.maxOf { it.longitude }
 
-        var coordinates: Coordinates
+        var result: Coordinates
 
         do {
-            val generatedLatitude = Random.nextDouble(highestPoint, lowestPont)
-            val generatedLongitude = Random.nextDouble(leftmostPoint, rightmostPoint)
-            coordinates = Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
-        } while (!Geometry.isInsidePolygon(vertices = bounds.asPairs(), point = coordinates.asPair()))
+            val generatedLatitude = Random.nextDouble(from = bottommostLatitude, until = topmostLatitude)
+            val generatedLongitude = Random.nextDouble(from = leftmostLongitude, until = rightmostLongitude)
 
-        return coordinates
+            result = Coordinates(latitude = generatedLatitude, longitude = generatedLongitude)
+            val resultPair = result.asPair()
+
+            val shouldGenerate = !Geometry.isInsidePolygon(
+                vertices = zoneBounds.asPairs(),
+                point = resultPair
+            ) || exclusionZoneBounds.any { (_, zoneBorder) ->
+                Geometry.isInsidePolygon(vertices = zoneBorder.asPairs(), point = resultPair)
+            }
+
+        } while (shouldGenerate)
+
+        return result
     }
 }
