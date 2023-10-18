@@ -11,17 +11,6 @@ import org.jetbrains.exposed.sql.selectAll
 
 class ZoneDaoImpl : ZoneDao {
 
-    private fun ResultRow.toZoneEntity(): ZoneEntity {
-        return ZoneEntity(
-            id = this[ZonesTable.id],
-            code = this[ZonesTable.code],
-            title = this[ZonesTable.title],
-            type = this[ZonesTable.type],
-            createdAt = this[ZonesTable.createdAt],
-            updatedAt = this[ZonesTable.updatedAt]
-        )
-    }
-
     override suspend fun getAllZones(): List<ZoneEntity> = query {
         ZonesTable
             .selectAll()
@@ -46,9 +35,20 @@ class ZoneDaoImpl : ZoneDao {
             it[ZonesTable.code] = code
             it[ZonesTable.title] = title
             it[ZonesTable.type] = type
-            it[ZonesTable.createdAt] = LocalDateTime.now()
-            it[ZonesTable.updatedAt] = LocalDateTime.now()
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toZoneEntity()
+    }
+
+    private fun ResultRow.toZoneEntity(): ZoneEntity {
+        return ZoneEntity(
+            id = this[ZonesTable.id],
+            code = this[ZonesTable.code],
+            title = this[ZonesTable.title],
+            type = this[ZonesTable.type],
+            createdAt = this[ZonesTable.createdAt],
+            updatedAt = this[ZonesTable.updatedAt]
+        )
     }
 }

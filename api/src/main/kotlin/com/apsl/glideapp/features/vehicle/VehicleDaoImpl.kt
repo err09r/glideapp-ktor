@@ -14,21 +14,6 @@ import org.jetbrains.exposed.sql.update
 
 class VehicleDaoImpl : VehicleDao {
 
-    private fun ResultRow.toVehicleEntity(): VehicleEntity {
-        return VehicleEntity(
-            id = this[VehiclesTable.id],
-            code = this[VehiclesTable.code],
-            zoneCode = this[VehiclesTable.zoneCode],
-            batteryCharge = this[VehiclesTable.batteryCharge],
-            type = this[VehiclesTable.type],
-            status = this[VehiclesTable.status],
-            latitude = this[VehiclesTable.latitude],
-            longitude = this[VehiclesTable.longitude],
-            createdAt = this[VehiclesTable.createdAt],
-            updatedAt = this[VehiclesTable.updatedAt]
-        )
-    }
-
     override suspend fun getAllVehicles(): List<VehicleEntity> = query {
         VehiclesTable.selectAll().map { it.toVehicleEntity() }
     }
@@ -69,8 +54,8 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.status] = status
             it[VehiclesTable.latitude] = latitude
             it[VehiclesTable.longitude] = longitude
-            it[VehiclesTable.createdAt] = LocalDateTime.now()
-            it[VehiclesTable.updatedAt] = LocalDateTime.now()
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toVehicleEntity()
     }
@@ -87,14 +72,29 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.status] = status
             it[VehiclesTable.latitude] = latitude
             it[VehiclesTable.longitude] = longitude
-            it[VehiclesTable.updatedAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         } > 0
     }
 
     override suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean = query {
         VehiclesTable.update({ VehiclesTable.id eq id }) {
             it[VehiclesTable.status] = status
-            it[VehiclesTable.updatedAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         } > 0
+    }
+
+    private fun ResultRow.toVehicleEntity(): VehicleEntity {
+        return VehicleEntity(
+            id = this[VehiclesTable.id],
+            code = this[VehiclesTable.code],
+            zoneCode = this[VehiclesTable.zoneCode],
+            batteryCharge = this[VehiclesTable.batteryCharge],
+            type = this[VehiclesTable.type],
+            status = this[VehiclesTable.status],
+            latitude = this[VehiclesTable.latitude],
+            longitude = this[VehiclesTable.longitude],
+            createdAt = this[VehiclesTable.createdAt],
+            updatedAt = this[VehiclesTable.updatedAt]
+        )
     }
 }

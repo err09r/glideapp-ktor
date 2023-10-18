@@ -14,23 +14,6 @@ import org.jetbrains.exposed.sql.update
 
 class RideDaoImpl : RideDao {
 
-    private fun ResultRow.toRideEntity(): RideEntity {
-        return RideEntity(
-            id = this[RidesTable.id],
-            userId = this[RidesTable.userId],
-            vehicleId = this[RidesTable.vehicleId],
-            startAddress = this[RidesTable.startAddress],
-            finishAddress = this[RidesTable.finishAddress],
-            startDateTime = this[RidesTable.startDateTime],
-            finishDateTime = this[RidesTable.finishDateTime],
-            status = this[RidesTable.status],
-            distance = this[RidesTable.distance],
-            averageSpeed = this[RidesTable.averageSpeed],
-            createdAt = this[RidesTable.createdAt],
-            updatedAt = this[RidesTable.updatedAt]
-        )
-    }
-
     override suspend fun getRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
         RidesTable
             .select { (RidesTable.userId eq userId) and (RidesTable.status eq status) }
@@ -73,9 +56,9 @@ class RideDaoImpl : RideDao {
             it[RidesTable.vehicleId] = vehicleId
             it[RidesTable.startAddress] = startAddress
             it[RidesTable.startDateTime] = startDateTime
-            it[RidesTable.status] = RideStatus.Started
-            it[RidesTable.createdAt] = LocalDateTime.now()
-            it[RidesTable.updatedAt] = LocalDateTime.now()
+            it[status] = RideStatus.Started
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toRideEntity()
     }
@@ -83,7 +66,7 @@ class RideDaoImpl : RideDao {
     override suspend fun updateRide(id: UUID, distance: Double): Boolean = query {
         RidesTable.update({ RidesTable.id eq id }) {
             it[RidesTable.distance] = distance
-            it[RidesTable.updatedAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         } > 0
     }
 
@@ -99,7 +82,24 @@ class RideDaoImpl : RideDao {
             it[RidesTable.finishDateTime] = finishDateTime
             it[RidesTable.status] = status
             it[RidesTable.averageSpeed] = averageSpeed
-            it[RidesTable.updatedAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         } > 0
+    }
+
+    private fun ResultRow.toRideEntity(): RideEntity {
+        return RideEntity(
+            id = this[RidesTable.id],
+            userId = this[RidesTable.userId],
+            vehicleId = this[RidesTable.vehicleId],
+            startAddress = this[RidesTable.startAddress],
+            finishAddress = this[RidesTable.finishAddress],
+            startDateTime = this[RidesTable.startDateTime],
+            finishDateTime = this[RidesTable.finishDateTime],
+            status = this[RidesTable.status],
+            distance = this[RidesTable.distance],
+            averageSpeed = this[RidesTable.averageSpeed],
+            createdAt = this[RidesTable.createdAt],
+            updatedAt = this[RidesTable.updatedAt]
+        )
     }
 }

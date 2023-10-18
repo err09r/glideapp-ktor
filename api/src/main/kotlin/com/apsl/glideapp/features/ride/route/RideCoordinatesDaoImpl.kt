@@ -11,17 +11,6 @@ import org.jetbrains.exposed.sql.select
 
 class RideCoordinatesDaoImpl : RideCoordinatesDao {
 
-    private fun ResultRow.toRideCoordinatesEntity(): RideCoordinatesEntity {
-        return RideCoordinatesEntity(
-            id = this[RideCoordinatesTable.id],
-            rideId = this[RideCoordinatesTable.rideId],
-            latitude = this[RideCoordinatesTable.latitude],
-            longitude = this[RideCoordinatesTable.longitude],
-            createdAt = this[RideCoordinatesTable.createdAt],
-            updatedAt = this[RideCoordinatesTable.updatedAt]
-        )
-    }
-
     override suspend fun getLatestRideCoordinatesByRideId(rideId: UUID): RideCoordinatesEntity? = query {
         RideCoordinatesTable
             .select { RideCoordinatesTable.rideId eq rideId }
@@ -50,5 +39,16 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
             it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toRideCoordinatesEntity()
+    }
+
+    private fun ResultRow.toRideCoordinatesEntity(): RideCoordinatesEntity {
+        return RideCoordinatesEntity(
+            id = this[RideCoordinatesTable.id],
+            rideId = this[RideCoordinatesTable.rideId],
+            latitude = this[RideCoordinatesTable.latitude],
+            longitude = this[RideCoordinatesTable.longitude],
+            createdAt = this[RideCoordinatesTable.createdAt],
+            updatedAt = this[RideCoordinatesTable.updatedAt]
+        )
     }
 }

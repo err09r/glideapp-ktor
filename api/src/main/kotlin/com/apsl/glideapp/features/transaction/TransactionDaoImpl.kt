@@ -12,17 +12,6 @@ import org.jetbrains.exposed.sql.select
 
 class TransactionDaoImpl : TransactionDao {
 
-    private fun ResultRow.toTransactionEntity(): TransactionEntity {
-        return TransactionEntity(
-            id = this[TransactionsTable.id],
-            userId = this[TransactionsTable.userId],
-            amount = this[TransactionsTable.amount],
-            type = this[TransactionsTable.type],
-            createdAt = this[TransactionsTable.createdAt],
-            updatedAt = this[TransactionsTable.updatedAt]
-        )
-    }
-
     override suspend fun getTransactionsByUserId(userId: UUID): List<TransactionEntity> = query {
         TransactionsTable
             .select { TransactionsTable.userId eq userId }
@@ -61,9 +50,20 @@ class TransactionDaoImpl : TransactionDao {
             it[TransactionsTable.userId] = userId
             it[TransactionsTable.amount] = amount
             it[TransactionsTable.type] = type
-            it[TransactionsTable.createdAt] = LocalDateTime.now()
-            it[TransactionsTable.updatedAt] = LocalDateTime.now()
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toTransactionEntity()
+    }
+
+    private fun ResultRow.toTransactionEntity(): TransactionEntity {
+        return TransactionEntity(
+            id = this[TransactionsTable.id],
+            userId = this[TransactionsTable.userId],
+            amount = this[TransactionsTable.amount],
+            type = this[TransactionsTable.type],
+            createdAt = this[TransactionsTable.createdAt],
+            updatedAt = this[TransactionsTable.updatedAt]
+        )
     }
 }

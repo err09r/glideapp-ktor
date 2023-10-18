@@ -11,19 +11,6 @@ import org.jetbrains.exposed.sql.update
 
 class UserDaoImpl : UserDao {
 
-    private fun ResultRow.toUserEntity(): UserEntity {
-        return UserEntity(
-            id = this[UsersTable.id],
-            username = this[UsersTable.username],
-            password = this[UsersTable.password],
-            salt = this[UsersTable.salt],
-            firstName = this[UsersTable.firstName],
-            lastName = this[UsersTable.lastName],
-            createdAt = this[UsersTable.createdAt],
-            updatedAt = this[UsersTable.updatedAt]
-        )
-    }
-
     override suspend fun getUserByUsername(username: String): UserEntity? = query {
         UsersTable
             .select { UsersTable.username eq username }
@@ -51,8 +38,8 @@ class UserDaoImpl : UserDao {
             it[UsersTable.salt] = salt
             it[UsersTable.firstName] = firstName
             it[UsersTable.lastName] = lastName
-            it[UsersTable.createdAt] = LocalDateTime.now()
-            it[UsersTable.updatedAt] = LocalDateTime.now()
+            it[createdAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toUserEntity()
     }
@@ -67,7 +54,20 @@ class UserDaoImpl : UserDao {
             it[UsersTable.username] = username
             it[UsersTable.firstName] = firstName
             it[UsersTable.lastName] = lastName
-            it[UsersTable.updatedAt] = LocalDateTime.now()
+            it[updatedAt] = LocalDateTime.now()
         } > 0
+    }
+
+    private fun ResultRow.toUserEntity(): UserEntity {
+        return UserEntity(
+            id = this[UsersTable.id],
+            username = this[UsersTable.username],
+            password = this[UsersTable.password],
+            salt = this[UsersTable.salt],
+            firstName = this[UsersTable.firstName],
+            lastName = this[UsersTable.lastName],
+            createdAt = this[UsersTable.createdAt],
+            updatedAt = this[UsersTable.updatedAt]
+        )
     }
 }
