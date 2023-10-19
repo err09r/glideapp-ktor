@@ -1,3 +1,5 @@
+@file:Suppress("Unused")
+
 package com.apsl.glideapp.database
 
 import com.apsl.glideapp.database.DatabaseFactory.query

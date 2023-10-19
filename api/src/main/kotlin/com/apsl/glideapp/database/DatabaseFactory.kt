@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue")
+
 package com.apsl.glideapp.database
 
 import com.apsl.glideapp.features.ride.RidesTable
@@ -21,7 +23,7 @@ object DatabaseFactory {
     fun init(config: ApplicationConfig) {
         val jdbcUrl = config.property("storage.jdbcUrl").getString()
         val driverClassName = config.property("storage.driverClassName").getString()
-        val database = Database.connect(jdbcUrl, driverClassName)
+        val database = Database.connect(url = jdbcUrl, driver = driverClassName)
         transaction(database) {
             SchemaUtils.create(
                 ZonesTable,

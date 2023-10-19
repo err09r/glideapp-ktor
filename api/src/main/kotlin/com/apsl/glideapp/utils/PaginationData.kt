@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName", "MemberVisibilityCanBePrivate")
+
 package com.apsl.glideapp.utils
 
 class PaginationData(page: String?, limit: String?) {
