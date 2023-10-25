@@ -2,6 +2,7 @@ package com.apsl.glideapp.features.ride
 
 import com.apsl.glideapp.common.dto.RideDto
 import com.apsl.glideapp.common.dto.RideEventDto
+import com.apsl.glideapp.common.dto.VehicleDto
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.common.models.RideStatus
@@ -17,6 +18,7 @@ import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.ride.route.RideCoordinatesDao
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.vehicle.VehicleDao
+import com.apsl.glideapp.features.vehicle.VehicleEntity
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.NoActiveRidesException
@@ -43,19 +45,19 @@ class RideController(
         KtorSimpleLogger("RideController").error("action: $action")
         when (action) {
             is RideAction.RequestCurrentState -> {
-                val (rideId, dateTime) = getActiveRideData(userId = userId)
-                RideEventDto.Restored(rideId = rideId, dateTime = dateTime)
+                val (rideId, vehicle, dateTime) = getActiveRideData(userId = userId)
+                RideEventDto.Restored(rideId = rideId, vehicle = vehicle, startDateTime = dateTime)
             }
 
             is RideAction.Start -> {
-                val rideId = startRide(
+                val (rideId, vehicle) = startRide(
                     userId = userId,
                     vehicleId = action.vehicleId,
                     userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
                 )
-                RideEventDto.Started(rideId = rideId, dateTime = action.dateTime)
+                RideEventDto.Started(rideId = rideId, vehicle = vehicle, dateTime = action.dateTime)
             }
 
             is RideAction.UpdateRoute -> {
@@ -81,7 +83,7 @@ class RideController(
         }
     }
 
-    private suspend fun getActiveRideData(userId: String?): Pair<String, LocalDateTime> {
+    private suspend fun getActiveRideData(userId: String?): Triple<String, VehicleDto, LocalDateTime> {
         requireNotNull(userId)
         val userUuid = UUID.fromString(userId)
 
@@ -89,7 +91,13 @@ class RideController(
             .getRidesByStatusAndUserId(status = RideStatus.Started, userId = userUuid)
             .singleOrNull() ?: throw NoActiveRidesException()
 
-        return (activeRide.id.toString() to activeRide.startDateTime)
+        val vehicleEntity = vehicleDao.getVehicleById(activeRide.vehicleId) ?: error("")
+
+        return Triple(
+            first = activeRide.id.toString(),
+            second = vehicleEntity.toDto(),
+            third = activeRide.startDateTime
+        )
     }
 
     private suspend fun startRide(
@@ -98,7 +106,7 @@ class RideController(
         userLocation: Coordinates,
         address: String?,
         dateTime: LocalDateTime
-    ): String {
+    ): Pair<String, VehicleDto> {
         val userUuid = UUID.fromString(userId)
         val vehicleUuid = UUID.fromString(vehicleId)
 
@@ -110,9 +118,9 @@ class RideController(
 //            error("")
 //        }
 
-        val vehicle = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
+        val vehicleEntity = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
         val distanceFromVehicle =
-            Geometry.calculateDistance(userLocation.asPair(), vehicle.latitude to vehicle.longitude)
+            Geometry.calculateDistance(userLocation.asPair(), vehicleEntity.latitude to vehicleEntity.longitude)
 
         if (distanceFromVehicle > glideConfig.unlockDistance) {
             throw UserTooFarFromVehicleException()
@@ -131,7 +139,7 @@ class RideController(
             error("")
         }
 
-        return rideEntity.id.toString()
+        return rideEntity.id.toString() to vehicleEntity.toDto()
     }
 
     private suspend fun updateRoute(rideId: String, coordinates: Coordinates): List<Coordinates> {
@@ -267,6 +275,21 @@ class RideController(
             finishDateTime = entity.finishDateTime ?: entity.startDateTime,
             route = Route(route),
             averageSpeed = entity.averageSpeed
+        )
+    }
+
+    private fun VehicleEntity.toDto(): VehicleDto {
+        val unlockingFee = glideConfig.unlockingFees[this.type] ?: error("")
+        val farePerMinute = glideConfig.faresPerMinute[this.type] ?: error("")
+        return VehicleDto(
+            id = this.id.toString(),
+            code = this.code,
+            batteryCharge = this.batteryCharge,
+            type = this.type,
+            status = this.status,
+            coordinates = Coordinates(this.latitude, this.longitude),
+            unlockingFee = unlockingFee,
+            farePerMinute = farePerMinute
         )
     }
 }
