@@ -22,6 +22,11 @@ class HoconGlideConfig(filename: String) : GlideConfig {
             .mapKeys { VehicleType.valueOf(it.key.capitalized()) }
             .mapValues { it.value.toString().toDouble() }
 
+    override val ranges: Map<VehicleType, Double>
+        get() = config.config("range").toMap()
+            .mapKeys { VehicleType.valueOf(it.key.capitalized()) }
+            .mapValues { it.value.toString().toDouble() }
+
     override val voucherCodes: Map<String, Double>
         get() = config.config("voucherCode").toMap()
             .mapValues { it.value.toString().toDouble() }

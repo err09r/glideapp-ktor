@@ -235,7 +235,7 @@ class RideController(
     }
 
     private suspend fun updateVehicleAfterRide(vehicle: VehicleEntity, distance: Double, coordinates: Coordinates) {
-        val fullChargedScooterRange = 21_000 // meters
+        val fullChargedScooterRange = requireNotNull(glideConfig.ranges[vehicle.type]) // in meters
         val percentSpentOnRide = (distance / fullChargedScooterRange).roundToInt()
         val percentAfterRide = (vehicle.batteryCharge - percentSpentOnRide).coerceIn(0..100)
         val newStatus = if (percentAfterRide < 40) VehicleStatus.LowBattery else VehicleStatus.Available
