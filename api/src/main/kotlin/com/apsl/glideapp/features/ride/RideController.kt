@@ -111,13 +111,8 @@ class RideController(
         val userUuid = UUID.fromString(userId)
         val vehicleUuid = UUID.fromString(vehicleId)
 
-        //TODO: Send message that user already has active ride
-        //TODO: And also check for user's balance
-        //TODO: And move it to a separate function
-//        if (rideDao.getRidesByStatusAndUserId(userId = userUuid, status = RideStatus.Started).isNotEmpty()) {
-//            KtorSimpleLogger("RideController").error("User already has active ride.")
-//            error("")
-//        }
+        checkIfUserHasActiveRide(userId = userUuid)
+        checkIfUserHasEnoughFunds(userId = userUuid)
 
         val vehicleEntity = vehicleDao.getVehicleById(vehicleUuid) ?: error("")
         val distanceFromVehicle =
@@ -141,6 +136,21 @@ class RideController(
         }
 
         return rideEntity.id.toString() to vehicleEntity.toDto()
+    }
+
+    private suspend fun checkIfUserHasActiveRide(userId: UUID) {
+        if (rideDao.getRidesByStatusAndUserId(userId = userId, status = RideStatus.Started).isNotEmpty()) {
+            error("User already has an active ride")
+        }
+    }
+
+    private suspend fun checkIfUserHasEnoughFunds(userId: UUID) {
+        val averageUnlockingFee = glideConfig.unlockingFees.values.sum() / glideConfig.unlockingFees.size
+        val averageFarePerMinute = glideConfig.faresPerMinute.values.sum() / glideConfig.faresPerMinute.size
+        val minimumAmountToStartRide = averageUnlockingFee + averageFarePerMinute
+        if (transactionDao.getTransactionsAmountSumByUserId(userId) >= minimumAmountToStartRide) {
+            error("User does not have enough funds to start a ride")
+        }
     }
 
     private suspend fun updateRoute(rideId: String, coordinates: Coordinates): List<Coordinates> {
@@ -201,16 +211,13 @@ class RideController(
         //
 
         //TODO: move to separate function (unlock price + price per minute)
-        //Remove hardcoded countryCode and calculate amount based on user location
         val vehicle = vehicleDao.getVehicleById(ride.vehicleId) ?: error("")
         val unlockingFee = glideConfig.unlockingFees[vehicle.type] ?: error("")
         val farePerMinute = glideConfig.faresPerMinute[vehicle.type] ?: error("")
         val minutes = durationInSeconds.seconds.inWholeMinutes
-        //TODO: replace with 'unlockingFee' and 'farePerMinute' of each vehicle/zone
         val amount = -(unlockingFee + (farePerMinute * minutes))
 
         transactionDao.insertTransaction(userId = ride.userId, amount = amount, type = TransactionType.Ride)
-        //
 
         val wasUpdated = rideDao.updateRide(
             id = rideUuid,
