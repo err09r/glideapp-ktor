@@ -24,8 +24,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MapController(
-    private val vehicleDao: VehicleDao,
     private val vehicleService: VehicleService,
+    private val vehicleDao: VehicleDao,
     private val glideConfig: GlideConfig
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)

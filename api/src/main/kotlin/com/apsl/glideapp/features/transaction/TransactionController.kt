@@ -4,12 +4,16 @@ import com.apsl.glideapp.common.dto.TransactionDto
 import com.apsl.glideapp.common.dto.TransactionRequest
 import com.apsl.glideapp.common.models.TransactionType
 import com.apsl.glideapp.common.util.UUID
+import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.utils.InvalidVoucherCodeException
 import com.apsl.glideapp.utils.PaginationData
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
-class TransactionController(private val transactionDao: TransactionDao) {
+class TransactionController(
+    private val transactionDao: TransactionDao,
+    private val glideConfig: GlideConfig
+) {
 
     suspend fun getTransactionsByUserId(userId: String?, page: String?, limit: String?) = runCatching {
         requireNotNull(userId)
@@ -51,7 +55,7 @@ class TransactionController(private val transactionDao: TransactionDao) {
     }
 
     private suspend fun createVoucherTransaction(userId: UUID, voucherCode: String) {
-        val amount = VoucherCodes.codes[voucherCode.trim()] ?: throw InvalidVoucherCodeException()
+        val amount = glideConfig.voucherCodes[voucherCode.trim()] ?: throw InvalidVoucherCodeException()
         transactionDao.insertTransaction(userId = userId, type = TransactionType.Voucher, amount = amount)
     }
 }

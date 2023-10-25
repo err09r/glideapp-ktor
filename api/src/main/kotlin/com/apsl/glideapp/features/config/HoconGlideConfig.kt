@@ -5,11 +5,9 @@ import com.apsl.glideapp.common.util.capitalized
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.HoconConfigLoader
 
-object HoconGlideConfig : GlideConfig {
+class HoconGlideConfig(filename: String) : GlideConfig {
 
-    private const val FILE_NAME = "glideapp.conf"
-
-    private val config: ApplicationConfig = requireNotNull(HoconConfigLoader().load(FILE_NAME))
+    private val config: ApplicationConfig = requireNotNull(HoconConfigLoader().load(filename))
 
     override val unlockDistance: Double
         get() = config.property("unlockDistance").getString().toDouble()
@@ -22,5 +20,9 @@ object HoconGlideConfig : GlideConfig {
     override val faresPerMinute: Map<VehicleType, Double>
         get() = config.config("farePerMinute").toMap()
             .mapKeys { VehicleType.valueOf(it.key.capitalized()) }
+            .mapValues { it.value.toString().toDouble() }
+
+    override val voucherCodes: Map<String, Double>
+        get() = config.config("voucherCode").toMap()
             .mapValues { it.value.toString().toDouble() }
 }
