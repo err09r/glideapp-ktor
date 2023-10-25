@@ -26,6 +26,7 @@ import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
 import com.apsl.glideapp.utils.UserTooFarFromVehicleException
 import io.ktor.util.logging.KtorSimpleLogger
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -223,8 +224,22 @@ class RideController(
             error("")
         }
 
-        //TODO: Add logic to change 'batteryCharge' and 'vehicleStatus' depending on ride distance etc.
-        vehicleDao.updateVehicle(id = ride.vehicleId, status = VehicleStatus.Available)
+        updateVehicleAfterRide(vehicle = vehicle, distance = ride.distance, coordinates = userLocation)
+    }
+
+    private suspend fun updateVehicleAfterRide(vehicle: VehicleEntity, distance: Double, coordinates: Coordinates) {
+        val fullChargedScooterRange = 21_000 // meters
+        val percentSpentOnRide = (distance / fullChargedScooterRange).roundToInt()
+        val percentAfterRide = (vehicle.batteryCharge - percentSpentOnRide).coerceIn(0..100)
+        val newStatus = if (percentAfterRide < 40) VehicleStatus.LowBattery else VehicleStatus.Available
+
+        vehicleDao.updateVehicle(
+            id = vehicle.id,
+            batteryCharge = percentAfterRide,
+            status = newStatus,
+            latitude = coordinates.latitude,
+            longitude = coordinates.longitude
+        )
     }
 
     suspend fun getRidesByStatusAndUserId(
