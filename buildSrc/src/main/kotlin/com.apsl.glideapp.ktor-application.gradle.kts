@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("${Config.group}.ApplicationKt")
+    mainClass = "${Config.group}.ApplicationKt"
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -16,15 +16,15 @@ application {
 
 ktor {
     fatJar {
-        archiveFileName.set("glideapp-ktor.jar")
+        archiveFileName = "${rootProject.name}.jar"
     }
     docker {
-        portMappings.set(listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)))
+        portMappings = listOf(DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP))
     }
 }
 
 distributions {
     main {
-        distributionBaseName.set(rootProject.name)
+        distributionBaseName = rootProject.name
     }
 }
