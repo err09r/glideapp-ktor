@@ -148,8 +148,8 @@ class RideController(
         val averageUnlockingFee = glideConfig.unlockingFees.values.sum() / glideConfig.unlockingFees.size
         val averageFarePerMinute = glideConfig.faresPerMinute.values.sum() / glideConfig.faresPerMinute.size
         val minimumAmountToStartRide = averageUnlockingFee + averageFarePerMinute
-        if (transactionDao.getTransactionsAmountSumByUserId(userId) >= minimumAmountToStartRide) {
-            error("User does not have enough funds to start a ride")
+        if (transactionDao.getTransactionsAmountSumByUserId(userId) < minimumAmountToStartRide) {
+            error("User does not have enough funds to start a ride (min. amount = $minimumAmountToStartRide")
         }
     }
 
