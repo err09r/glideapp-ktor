@@ -10,9 +10,16 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
 class RideDaoImpl : RideDao {
+
+    override suspend fun getAllRides(): List<RideEntity> = query {
+        RidesTable
+            .selectAll()
+            .map { it.toRideEntity() }
+    }
 
     override suspend fun getRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity> = query {
         RidesTable

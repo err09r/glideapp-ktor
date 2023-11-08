@@ -5,6 +5,7 @@ import com.apsl.glideapp.common.util.UUID
 import kotlinx.datetime.LocalDateTime
 
 interface RideDao {
+    suspend fun getAllRides(): List<RideEntity>
     suspend fun getRidesByStatusAndUserId(status: RideStatus, userId: UUID): List<RideEntity>
     suspend fun getRidesByStatusAndUserId(
         status: RideStatus,
