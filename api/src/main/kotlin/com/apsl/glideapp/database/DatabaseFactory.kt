@@ -1,4 +1,4 @@
-@file:Suppress("SameParameterValue")
+@file:Suppress("Unused", "SameParameterValue", "MemberVisibilityCanBePrivate")
 
 package com.apsl.glideapp.database
 
@@ -20,12 +20,16 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
+@OptIn(ExperimentalKeywordApi::class)
 object DatabaseFactory {
 
-    @OptIn(ExperimentalKeywordApi::class)
     fun init(config: ApplicationConfig) {
         val jdbcUrl = config.property("storage.jdbcUrl").getString()
         val driverClassName = config.property("storage.driverClassName").getString()
+        init(jdbcUrl = jdbcUrl, driverClassName = driverClassName)
+    }
+
+    fun init(jdbcUrl: String, driverClassName: String) {
         val database = Database.connect(
             url = jdbcUrl,
             driver = driverClassName,
