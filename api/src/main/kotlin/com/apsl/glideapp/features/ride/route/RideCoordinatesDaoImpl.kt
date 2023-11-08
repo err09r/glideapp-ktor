@@ -8,8 +8,15 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 
 class RideCoordinatesDaoImpl : RideCoordinatesDao {
+
+    override suspend fun getAllRideCoordinates(): List<RideCoordinatesEntity> = query {
+        RideCoordinatesTable
+            .selectAll()
+            .map { it.toRideCoordinatesEntity() }
+    }
 
     override suspend fun getLatestRideCoordinatesByRideId(rideId: UUID): RideCoordinatesEntity? = query {
         RideCoordinatesTable
