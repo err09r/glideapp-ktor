@@ -3,6 +3,7 @@ package com.apsl.glideapp.plugins
 import com.apsl.glideapp.di.appModule
 import com.apsl.glideapp.di.controllerModule
 import com.apsl.glideapp.di.daoModule
+import com.apsl.glideapp.di.repositoryModule
 import com.apsl.glideapp.di.securityModule
 import com.apsl.glideapp.di.serviceModule
 import io.ktor.server.application.Application
@@ -14,7 +15,7 @@ fun Application.configureInjection() {
     install(Koin) {
         slf4jLogger()
         properties(jwtProperties)
-        modules(appModule, daoModule, controllerModule, serviceModule, securityModule)
+        modules(appModule, daoModule, controllerModule, serviceModule, repositoryModule, securityModule)
     }
 }
 
