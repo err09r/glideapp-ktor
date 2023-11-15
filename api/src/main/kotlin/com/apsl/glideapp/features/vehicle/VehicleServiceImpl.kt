@@ -10,6 +10,7 @@ import com.apsl.glideapp.features.zone.ZoneEntity
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.logi
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +69,7 @@ class VehicleServiceImpl(
 
             emit(Unit)
 //            delay(Random.nextInt(5, 20).seconds)
-            delay(5L)
+            delay(Int.MAX_VALUE.hours)
         }
     }
         .flowOn(Dispatchers.IO)
