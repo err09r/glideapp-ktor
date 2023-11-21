@@ -3,9 +3,9 @@ package com.apsl.glideapp.features.user
 import com.apsl.glideapp.common.dto.UserDto
 import com.apsl.glideapp.common.models.RideStatus
 import com.apsl.glideapp.common.util.UUID
+import com.apsl.glideapp.features.auth.UserNotFoundException
 import com.apsl.glideapp.features.ride.RideDao
 import com.apsl.glideapp.features.transaction.TransactionDao
-import com.apsl.glideapp.utils.UserNotFoundException
 
 class UserController(
     private val userDao: UserDao,

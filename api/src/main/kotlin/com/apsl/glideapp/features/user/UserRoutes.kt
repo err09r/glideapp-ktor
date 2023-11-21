@@ -1,11 +1,11 @@
 package com.apsl.glideapp.features.user
 
+import com.apsl.glideapp.features.auth.UserNotFoundException
 import com.apsl.glideapp.features.auth.security.JwtUtils
-import com.apsl.glideapp.utils.UserNotFoundException
+import com.apsl.glideapp.utils.getErrorResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -24,8 +24,8 @@ private fun Route.getUserByIdRoute(userController: UserController) {
         userController.getUserById(userId)
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException -> HttpStatusCode.BadRequest
                         is UserNotFoundException -> HttpStatusCode.NotFound

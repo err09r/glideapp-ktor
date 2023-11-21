@@ -10,8 +10,6 @@ import com.apsl.glideapp.features.auth.security.hashing.HashingService
 import com.apsl.glideapp.features.auth.security.hashing.SaltedHash
 import com.apsl.glideapp.features.transaction.TransactionDao
 import com.apsl.glideapp.features.user.UserDao
-import com.apsl.glideapp.utils.UserAlreadyExistsException
-import com.apsl.glideapp.utils.UserNotFoundException
 
 class AuthController(
     private val userDao: UserDao,

@@ -3,11 +3,11 @@ package com.apsl.glideapp.features.transaction
 import com.apsl.glideapp.common.dto.TransactionRequest
 import com.apsl.glideapp.features.auth.security.JwtUtils
 import com.apsl.glideapp.utils.InvalidVoucherCodeException
+import com.apsl.glideapp.utils.getErrorResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -31,8 +31,8 @@ private fun Route.getTransactionsByUserIdRoute(transactionController: Transactio
         transactionController.getTransactionsByUserId(userId = userId, page = page, limit = limit)
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException -> HttpStatusCode.BadRequest
                         else -> HttpStatusCode.InternalServerError
@@ -50,8 +50,8 @@ private fun Route.createTransactionRoute(transactionController: TransactionContr
         transactionController.createTransaction(userId = userId, request = request)
             .onSuccess { call.respond(status = HttpStatusCode.Created, message = "") }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException, is InvalidVoucherCodeException -> HttpStatusCode.BadRequest
                         else -> HttpStatusCode.InternalServerError

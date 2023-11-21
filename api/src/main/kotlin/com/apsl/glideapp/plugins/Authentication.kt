@@ -1,6 +1,8 @@
 package com.apsl.glideapp.plugins
 
+import com.apsl.glideapp.common.dto.ErrorResponse
 import com.apsl.glideapp.features.auth.security.TokenConfig
+import com.apsl.glideapp.utils.GlideErrorCodes
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.HttpStatusCode
@@ -33,7 +35,13 @@ fun Application.configureAuthentication() {
                 }
             }
             challenge { _, _ ->
-                call.respond(HttpStatusCode.Unauthorized, "Token is invalid or expired")
+                call.respond(
+                    status = HttpStatusCode.Unauthorized,
+                    message = ErrorResponse(
+                        code = GlideErrorCodes.INVALID_TOKEN,
+                        description = "Token is invalid or expired"
+                    )
+                )
             }
         }
     }

@@ -1,9 +1,9 @@
 package com.apsl.glideapp.features.config
 
+import com.apsl.glideapp.utils.getErrorResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -20,6 +20,11 @@ private fun Route.getAppConfigRoute(appConfigController: AppConfigController) {
     get {
         appConfigController.getAppConfig()
             .onSuccess { call.respond(it) }
-            .onFailure { call.respondNullable(message = it.message, status = HttpStatusCode.InternalServerError) }
+            .onFailure { throwable ->
+                call.respond(
+                    message = throwable.getErrorResponse(),
+                    status = HttpStatusCode.InternalServerError
+                )
+            }
     }
 }

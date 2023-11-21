@@ -153,7 +153,7 @@ class RideController(
         }
     }
 
-    private suspend fun updateRoute(rideId: String, coordinates: Coordinates): List<Coordinates> {
+    private suspend fun updateRoute(rideId: String, coordinates: Coordinates): Route {
         val rideUuid = UUID.fromString(rideId)
         rideCoordinatesDao.insertRideCoordinates(
             rideId = rideUuid,
@@ -172,9 +172,11 @@ class RideController(
             rideDao.updateRide(id = rideUuid, distance = newTotalDistance)
         }
 
-        return rideCoordinatesDao.getRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
+        val rideCoordinates = rideCoordinatesDao.getRideCoordinatesByRideId(rideId = rideUuid).map { entity ->
             Coordinates(latitude = entity.latitude, longitude = entity.longitude)
         }
+
+        return Route(rideCoordinates)
     }
 
     private suspend fun finishRide(

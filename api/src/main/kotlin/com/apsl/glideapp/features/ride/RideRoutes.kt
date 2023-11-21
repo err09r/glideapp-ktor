@@ -2,10 +2,10 @@ package com.apsl.glideapp.features.ride
 
 import com.apsl.glideapp.common.models.RideAction
 import com.apsl.glideapp.features.auth.security.JwtUtils
+import com.apsl.glideapp.utils.getErrorResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
@@ -72,8 +72,8 @@ private fun Route.getRidesByStatusAndUserIdRoute(rideController: RideController)
         )
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException -> HttpStatusCode.BadRequest
                         else -> HttpStatusCode.InternalServerError
@@ -89,8 +89,8 @@ private fun Route.getRideByIdRoute(rideController: RideController) {
         rideController.getRideById(rideId)
             .onSuccess { call.respond(it) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException -> HttpStatusCode.BadRequest
                         else -> HttpStatusCode.InternalServerError

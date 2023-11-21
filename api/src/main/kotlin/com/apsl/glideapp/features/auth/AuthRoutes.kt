@@ -2,13 +2,11 @@ package com.apsl.glideapp.features.auth
 
 import com.apsl.glideapp.common.dto.LoginRequest
 import com.apsl.glideapp.common.dto.RegisterRequest
-import com.apsl.glideapp.utils.UserAlreadyExistsException
-import com.apsl.glideapp.utils.UserNotFoundException
+import com.apsl.glideapp.utils.getErrorResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondNullable
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import org.koin.ktor.ext.inject
@@ -25,8 +23,8 @@ private fun Route.registerRoute(authController: AuthController) {
         authController.register(request = request)
             .onSuccess { authResponse -> call.respond(authResponse) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException, is IncorrectPasswordFormatException, is IncorrectUsernameFormatException -> HttpStatusCode.BadRequest
                         is UserAlreadyExistsException -> HttpStatusCode.Conflict
@@ -43,8 +41,8 @@ private fun Route.loginRoute(authController: AuthController) {
         authController.login(request = request)
             .onSuccess { authResponse -> call.respond(authResponse) }
             .onFailure { throwable ->
-                call.respondNullable(
-                    message = throwable.message,
+                call.respond(
+                    message = throwable.getErrorResponse(),
                     status = when (throwable) {
                         is IllegalArgumentException -> HttpStatusCode.BadRequest
                         is InvalidPasswordException -> HttpStatusCode.Unauthorized

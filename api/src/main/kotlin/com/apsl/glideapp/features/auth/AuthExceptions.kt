@@ -1,11 +1,29 @@
 package com.apsl.glideapp.features.auth
 
-class IncorrectUsernameFormatException(override val message: String? = "Username format is incorrect") :
-    Exception(message)
+import com.apsl.glideapp.utils.GlideErrorCodes
+import com.apsl.glideapp.utils.GlideException
 
-class IncorrectPasswordFormatException(override val message: String? = "Password format is incorrect") :
-    Exception(message)
+class IncorrectUsernameFormatException(message: String? = "Username format is incorrect") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.INCORRECT_USERNAME_FORMAT
+}
 
-class RegistrationFailedException(override val message: String? = "User registration failed") : Exception(message)
+class IncorrectPasswordFormatException(message: String? = "Password format is incorrect") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.INCORRECT_PASSWORD_FORMAT
+}
 
-class InvalidPasswordException(override val message: String? = "Password is invalid") : Exception(message)
+class RegistrationFailedException(message: String? = "User registration failed") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.REGISTRATION_FAILED
+}
+
+class InvalidPasswordException(message: String? = "Password is invalid") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.INVALID_PASSWORD
+}
+
+class UserNotFoundException(message: String? = "User not found") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.USER_NOT_FOUND
+}
+
+class UserAlreadyExistsException(message: String? = "User already exists") : GlideException(message) {
+    override val code: Int = GlideErrorCodes.USER_ALREADY_EXISTS
+}
+
