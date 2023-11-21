@@ -10,9 +10,13 @@ import com.apsl.glideapp.plugins.configureMonitoring
 import com.apsl.glideapp.plugins.configureRouting
 import com.apsl.glideapp.plugins.configureSerialization
 import com.apsl.glideapp.plugins.configureSockets
+import com.apsl.glideapp.utils.KeyStoreUtils
 import io.ktor.server.application.Application
 
-fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>) {
+    KeyStoreUtils.createKeyStoreFile()
+    io.ktor.server.netty.EngineMain.main(args)
+}
 
 fun Application.module() {
     DatabaseFactory.init(environment.config)

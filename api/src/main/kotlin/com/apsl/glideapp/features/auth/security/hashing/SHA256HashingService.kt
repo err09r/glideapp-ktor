@@ -4,7 +4,9 @@ import java.security.SecureRandom
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 
-class SHA256HashingService : HashingService {
+object SHA256HashingService : HashingService {
+
+    private const val ALGORITHM = "SHA1PRNG"
 
     override fun generateSaltedHash(value: String, length: Int): SaltedHash {
         val salt = SecureRandom.getInstance(ALGORITHM).generateSeed(length)
@@ -15,9 +17,5 @@ class SHA256HashingService : HashingService {
 
     override fun verify(value: String, saltedHash: SaltedHash): Boolean {
         return DigestUtils.sha256Hex(saltedHash.salt + value) == saltedHash.hash
-    }
-
-    private companion object {
-        private const val ALGORITHM = "SHA1PRNG"
     }
 }
