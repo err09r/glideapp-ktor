@@ -4,15 +4,15 @@ ktor = "2.3.6"
 
 kotlinx-coroutines = "1.7.3"
 kotlinx-datetime = "0.4.1"
-kotlinx-serialization = "1.6.0"
+kotlinx-serialization = "1.6.1"
 
 commons-codec = "1.16.0"
 exposed = "0.44.1"
-glideapp-common = "0.2.9"
-gradleVersionsPlugin = "0.49.0"
+glideapp-common = "0.2.12"
+gradleVersionsPlugin = "0.50.0"
 koin = "3.5.1"
 logback = "1.4.11"
-postgresql = "42.6.0"
+postgresql = "42.7.0"
 
 [libraries]
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
