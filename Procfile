@@ -1,1 +1,1 @@
-web: ./api/build/install/glideapp-ktor/bin/api
+web: ./api/build/install/glideapp-ktor/bin/api -p $PORT
