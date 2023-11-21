@@ -5,7 +5,6 @@ import com.apsl.glideapp.features.auth.security.TokenConfig
 import com.apsl.glideapp.features.auth.security.TokenService
 import com.apsl.glideapp.features.auth.security.hashing.HashingService
 import com.apsl.glideapp.features.auth.security.hashing.SHA256HashingService
-import com.apsl.glideapp.utils.Constants
 import org.koin.dsl.module
 
 val securityModule = module {
@@ -17,7 +16,7 @@ val securityModule = module {
             audience = getProperty("audience"),
             secret = getProperty("secret"),
             realm = getProperty("realm"),
-            expiresIn = Constants.TOKEN_EXPIRATION_TIME
+            expiresIn = 6L * 30L * 24L * 60L * 60L * 1000L // 6 months
         )
     }
 }
