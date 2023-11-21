@@ -1,15 +1,16 @@
 package com.apsl.glideapp.plugins
 
-import com.apsl.glideapp.utils.Constants
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.plugins.httpsredirect.HttpsRedirect
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.routing
 
 fun Application.configureHttp() {
+    val applicationConfig: ApplicationConfig = environment.config
     install(HttpsRedirect) {
-        sslPort = getSslPort()
+        sslPort = getSslPort(config = applicationConfig)
         permanentRedirect = true
     }
     routing {
@@ -17,10 +18,6 @@ fun Application.configureHttp() {
     }
 }
 
-private fun getSslPort(): Int {
-    return try {
-        System.getenv()["SSL_PORT"]?.toInt() ?: Constants.DEFAULT_SSL_PORT
-    } catch (e: Exception) {
-        Constants.DEFAULT_SSL_PORT
-    }
+private fun getSslPort(config: ApplicationConfig): Int {
+    return config.property("ktor.deployment.sslPort").getString().toInt()
 }
