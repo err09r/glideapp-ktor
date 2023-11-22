@@ -1,15 +1,20 @@
 package com.apsl.glideapp.utils
 
 import io.ktor.util.logging.KtorSimpleLogger
-import java.io.File
+import java.io.InputStream
+import java.io.InputStreamReader
 
-fun Any.readFileFromResources(path: String): String {
+fun readTextFromResourcesFile(filepath: String): String? {
+    var result: String? = null
     return try {
-        val uri = this.javaClass.classLoader.getResource(path)?.toURI()
-        checkNotNull(uri)
-        File(uri).readText()
+        val classLoader: ClassLoader = Thread.currentThread().contextClassLoader
+        val inputStream: InputStream? = classLoader.getResourceAsStream(filepath)
+        if (inputStream != null) {
+            InputStreamReader(inputStream).use { result = it.readText() }
+        }
+        result
     } catch (e: Exception) {
-        KtorSimpleLogger(this::class.java.simpleName).error(e.message)
-        ""
+        KtorSimpleLogger("readFileFromResources").error(e.message)
+        result
     }
 }

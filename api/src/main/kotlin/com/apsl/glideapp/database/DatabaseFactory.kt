@@ -9,7 +9,7 @@ import com.apsl.glideapp.features.user.UsersTable
 import com.apsl.glideapp.features.vehicle.VehiclesTable
 import com.apsl.glideapp.features.zone.ZonesTable
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesTable
-import com.apsl.glideapp.utils.readFileFromResources
+import com.apsl.glideapp.utils.readTextFromResourcesFile
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
@@ -52,8 +52,9 @@ object DatabaseFactory {
 
     private fun Transaction.initializeTables(vararg tables: InitializableTable) {
         tables.forEach {
-            val statement = readFileFromResources(path = it.initSqlFilePath)
-            exec(statement)
+            readTextFromResourcesFile(filepath = it.initSqlFilePath)?.let { statement ->
+                exec(statement)
+            }
         }
     }
 
