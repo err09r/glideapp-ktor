@@ -12,6 +12,6 @@ tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
     }
     checkForGradleUpdate = true
     outputDir = "build/dependencyUpdates"
-    outputFormatter = Config.DependencyUpdates.outputFormatter
-    reportfileName = Config.DependencyUpdates.reportfileName
+    outputFormatter = "html"
+    reportfileName = "report"
 }
