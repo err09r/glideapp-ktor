@@ -74,6 +74,6 @@ class MapController(
     }
 
     private companion object {
-        private const val UPDATE_INTERVAL = 2000L
+        private const val UPDATE_INTERVAL = 500L
     }
 }
