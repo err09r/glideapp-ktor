@@ -46,7 +46,7 @@ class MapController(
     private fun observeMapContentWithinBounds() = vehicleService.vehicleListChanges
         .map { getCurrentMapContent() }
         .onStart { emit(getCurrentMapContent()) }
-        .debounce(UPDATE_INTERVAL)
+        .debounce(UPDATE_INTERVAL_MS)
         .flowOn(Dispatchers.IO)
         .distinctUntilChanged()
 
@@ -74,6 +74,6 @@ class MapController(
     }
 
     private companion object {
-        private const val UPDATE_INTERVAL = 500L
+        private const val UPDATE_INTERVAL_MS = 500L
     }
 }
