@@ -11,7 +11,6 @@ import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.logi
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -35,38 +34,10 @@ class VehicleServiceImpl(
     }
 
     override val vehicleListChanges = flow {
-        delay(15.seconds)
-
-        val noParkingZoneCodes = zoneDao.getZonesByType(ZoneType.NoParking).map(ZoneEntity::code)
-        val noParkingZoneCoordinates = noParkingZoneCodes.associateWith { zoneCode ->
-            zoneCoordinatesDao
-                .getZoneCoordinatesByZoneCode(zoneCode)
-                .map { Coordinates(it.latitude, it.longitude) }
-        }
+        delay(INITIAL_DELAY)
 
         while (currentCoroutineContext().isActive) {
-            val vehicles = vehicleDao.getAllVehicles()
-            val newVehicles = vehicles.shuffled().take(6)
-
-            newVehicles.forEach { vehicleEntity ->
-                val zoneBounds = zoneCoordinatesDao
-                    .getZoneCoordinatesByZoneCode(vehicleEntity.zoneCode)
-                    .map { Coordinates(it.latitude, it.longitude) }
-
-                val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
-                    zoneBounds = zoneBounds,
-                    exclusionZoneBounds = noParkingZoneCoordinates
-                )
-
-                vehicleDao.updateVehicle(
-                    id = vehicleEntity.id,
-                    batteryCharge = Random.nextInt(40, 101),
-                    status = VehicleStatus.entries.random(),
-                    latitude = latitude,
-                    longitude = longitude
-                )
-            }
-
+            updateVehicles()
             emit(Unit)
 //            delay(Random.nextInt(5, 20).seconds)
             delay(Int.MAX_VALUE.hours)
@@ -74,6 +45,37 @@ class VehicleServiceImpl(
     }
         .flowOn(Dispatchers.IO)
         .shareIn(scope = scope, started = SharingStarted.Eagerly)
+
+    private suspend fun updateVehicles() {
+        val noParkingZoneCodes = zoneDao.getZonesByType(ZoneType.NoParking).map(ZoneEntity::code)
+        val noParkingZoneCoordinates = noParkingZoneCodes.associateWith { zoneCode ->
+            zoneCoordinatesDao
+                .getZoneCoordinatesByZoneCode(zoneCode)
+                .map { Coordinates(it.latitude, it.longitude) }
+        }
+
+        val vehicles = vehicleDao.getAllVehicles()
+        val newVehicles = vehicles.shuffled().take(VEHICLES_TO_UPDATE)
+
+        newVehicles.forEach { vehicleEntity ->
+            val zoneBounds = zoneCoordinatesDao
+                .getZoneCoordinatesByZoneCode(vehicleEntity.zoneCode)
+                .map { Coordinates(it.latitude, it.longitude) }
+
+            val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
+                zoneBounds = zoneBounds,
+                exclusionZoneBounds = noParkingZoneCoordinates
+            )
+
+            vehicleDao.updateVehicle(
+                id = vehicleEntity.id,
+                batteryCharge = Random.nextInt(BATTERY_CHARGE_MIN, BATTERY_CHARGE_MAX - 1),
+                status = VehicleStatus.entries.random(),
+                latitude = latitude,
+                longitude = longitude
+            )
+        }
+    }
 
     private fun generateCoordinatesWithinZoneBounds(
         zoneBounds: List<Coordinates>,
@@ -103,5 +105,12 @@ class VehicleServiceImpl(
         } while (shouldGenerate)
 
         return result
+    }
+
+    private companion object {
+        private const val INITIAL_DELAY = 15000L
+        private const val VEHICLES_TO_UPDATE = 6
+        private const val BATTERY_CHARGE_MIN = 40
+        private const val BATTERY_CHARGE_MAX = 100
     }
 }
