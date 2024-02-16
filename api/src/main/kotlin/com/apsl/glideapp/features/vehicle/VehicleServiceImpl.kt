@@ -34,7 +34,7 @@ class VehicleServiceImpl(
     }
 
     override val vehicleListChanges = flow {
-        delay(INITIAL_DELAY)
+        delay(INITIAL_DELAY_MS)
 
         while (currentCoroutineContext().isActive) {
             updateVehicles()
@@ -108,7 +108,7 @@ class VehicleServiceImpl(
     }
 
     private companion object {
-        private const val INITIAL_DELAY = 15000L
+        private const val INITIAL_DELAY_MS = 15000L
         private const val VEHICLES_TO_UPDATE = 6
         private const val BATTERY_CHARGE_MIN = 40
         private const val BATTERY_CHARGE_MAX = 100

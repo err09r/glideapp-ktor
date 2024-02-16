@@ -40,13 +40,13 @@ class TransactionController(
 
         if (request.amount == null && request.voucherCode != null && request.type == TransactionType.Voucher) {
             // Simulate delay
-            delay(VOUCHER_DELAY)
+            delay(VOUCHER_DELAY_MS)
             request.voucherCode?.let { voucherCode ->
                 createVoucherTransaction(userId = userUuid, voucherCode = voucherCode)
             }
         } else {
             // Simulate delay of Payment System
-            delay(TOPUP_DELAY)
+            delay(TOPUP_DELAY_MS)
             request.amount?.let { amount ->
                 transactionDao.insertTransaction(userId = userUuid, amount = amount, type = request.type)
             }
@@ -59,7 +59,7 @@ class TransactionController(
     }
 
     private companion object {
-        private const val VOUCHER_DELAY = 2000L
-        private const val TOPUP_DELAY = 4000L
+        private const val VOUCHER_DELAY_MS = 2000L
+        private const val TOPUP_DELAY_MS = 4000L
     }
 }
