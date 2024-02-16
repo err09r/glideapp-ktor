@@ -23,3 +23,9 @@ class NoActiveRidesException(
 ) : GlideException(message) {
     override val code: Int = GlideErrorCodes.NO_ACTIVE_RIDES
 }
+
+class NotEnoughFundsException(
+    message: String? = "User does not have enough funds to start a ride"
+) : GlideException(message) {
+    override val code: Int = GlideErrorCodes.NOT_ENOUGH_FUNDS
+}
