@@ -35,6 +35,9 @@ class TransactionController(
     suspend fun createTransaction(userId: String?, request: TransactionRequest?) = runCatching {
         requireNotNull(userId)
         requireNotNull(request)
+        request.amount?.let {
+            require(it > 0.0) { "Transaction amount cannot be lower or equal to zero (0.0)" }
+        }
 
         val userUuid = UUID.fromString(userId)
 
