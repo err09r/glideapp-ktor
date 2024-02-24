@@ -68,13 +68,13 @@ class RideController(
             }
 
             is RideAction.Finish -> {
-                finishRide(
+                val (distance, averageSpeed) = finishRide(
                     rideId = action.rideId,
                     userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
                 )
-                RideEventDto.Finished
+                RideEventDto.Finished(distance, averageSpeed)
             }
         }
     }.recover { throwable ->
@@ -187,7 +187,7 @@ class RideController(
         userLocation: Coordinates,
         address: String?,
         dateTime: LocalDateTime
-    ) {
+    ): Pair<Double, Double> {
         val rideUuid = UUID.fromString(rideId)
 
         val ride = rideDao.getRideById(rideUuid) ?: error("")
@@ -237,6 +237,9 @@ class RideController(
         }
 
         updateVehicleAfterRide(vehicle = vehicle, distance = ride.distance, coordinates = userLocation)
+
+        val updatedRide = checkNotNull(rideDao.getRideById(rideUuid))
+        return updatedRide.distance to updatedRide.averageSpeed
     }
 
     private suspend fun updateVehicleAfterRide(vehicle: VehicleEntity, distance: Double, coordinates: Coordinates) {

@@ -42,7 +42,7 @@ private fun Route.observeRideRoute(rideController: RideController) {
             if (action != null && userId != null) {
                 rideController.handleRideAction(action = action, userId = userId)
                     .onSuccess {
-                        KtorSimpleLogger("RideController").error("event: $it")
+                        KtorSimpleLogger("RideRoutes").error("event: $it")
                         sendSerialized(it)
                     }
                     .onFailure { throwable ->
