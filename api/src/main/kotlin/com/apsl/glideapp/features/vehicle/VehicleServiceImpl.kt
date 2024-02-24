@@ -8,9 +8,9 @@ import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.features.zone.ZoneEntity
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
+import com.apsl.glideapp.utils.loge
 import com.apsl.glideapp.utils.logi
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -29,8 +29,21 @@ class VehicleServiceImpl(
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    private var generationDelay = Long.MAX_VALUE
+
     init {
         logi("Vehicle service created")
+        updateGenerationDelay()
+    }
+
+    private fun updateGenerationDelay() {
+        try {
+            val isGenerationModeOn = System.getenv()["GENERATE_MODE"].toBoolean()
+            check(isGenerationModeOn)
+            generationDelay = 10L
+        } catch (e: Exception) {
+            loge(e.message.toString())
+        }
     }
 
     override val vehicleListChanges = flow {
@@ -39,8 +52,8 @@ class VehicleServiceImpl(
         while (currentCoroutineContext().isActive) {
             updateVehicles()
             emit(Unit)
-//            delay(Random.nextInt(5, 20).seconds)
-            delay(Int.MAX_VALUE.hours)
+            // delay(Random.nextInt(5, 20).seconds)
+            delay(generationDelay)
         }
     }
         .flowOn(Dispatchers.IO)
