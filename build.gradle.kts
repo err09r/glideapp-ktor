@@ -6,12 +6,12 @@ plugins {
 
 tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
     rejectVersionIf {
-        arrayOf("alpha", "beta", "rc", "dev").any {
+        listOf("alpha", "beta", "rc", "dev").any {
             candidate.version.contains(it, ignoreCase = true)
         }
     }
     checkForGradleUpdate = true
     outputDir = "build/dependencyUpdates"
-    outputFormatter = Config.DependencyUpdates.outputFormatter
-    reportfileName = Config.DependencyUpdates.reportfileName
+    outputFormatter = "html"
+    reportfileName = "report"
 }

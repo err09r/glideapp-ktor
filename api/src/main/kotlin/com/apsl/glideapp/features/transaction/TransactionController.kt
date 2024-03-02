@@ -7,7 +7,6 @@ import com.apsl.glideapp.common.util.UUID
 import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.utils.InvalidVoucherCodeException
 import com.apsl.glideapp.utils.PaginationData
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 class TransactionController(
@@ -36,18 +35,21 @@ class TransactionController(
     suspend fun createTransaction(userId: String?, request: TransactionRequest?) = runCatching {
         requireNotNull(userId)
         requireNotNull(request)
+        request.amount?.let {
+            require(it > 0.0) { "Transaction amount cannot be lower or equal to zero (0.0)" }
+        }
 
         val userUuid = UUID.fromString(userId)
 
         if (request.amount == null && request.voucherCode != null && request.type == TransactionType.Voucher) {
             // Simulate delay
-            delay(2.seconds)
+            delay(VOUCHER_DELAY_MS)
             request.voucherCode?.let { voucherCode ->
                 createVoucherTransaction(userId = userUuid, voucherCode = voucherCode)
             }
         } else {
             // Simulate delay of Payment System
-            delay(4.seconds)
+            delay(TOPUP_DELAY_MS)
             request.amount?.let { amount ->
                 transactionDao.insertTransaction(userId = userUuid, amount = amount, type = request.type)
             }
@@ -57,5 +59,10 @@ class TransactionController(
     private suspend fun createVoucherTransaction(userId: UUID, voucherCode: String) {
         val amount = glideConfig.voucherCodes[voucherCode.trim()] ?: throw InvalidVoucherCodeException()
         transactionDao.insertTransaction(userId = userId, type = TransactionType.Voucher, amount = amount)
+    }
+
+    private companion object {
+        private const val VOUCHER_DELAY_MS = 2000L
+        private const val TOPUP_DELAY_MS = 4000L
     }
 }

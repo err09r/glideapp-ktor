@@ -8,10 +8,9 @@ import com.apsl.glideapp.common.util.Geometry
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.features.zone.ZoneEntity
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
+import com.apsl.glideapp.utils.loge
 import com.apsl.glideapp.utils.logi
 import kotlin.random.Random
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -30,13 +29,37 @@ class VehicleServiceImpl(
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    private var generationDelay = Long.MAX_VALUE
+
     init {
         logi("Vehicle service created")
+        updateGenerationDelay()
+    }
+
+    private fun updateGenerationDelay() {
+        try {
+            val isGenerationModeOn = System.getenv()["GENERATE_MODE"].toBoolean()
+            check(isGenerationModeOn)
+            generationDelay = 10L
+        } catch (e: Exception) {
+            loge(e.message.toString())
+        }
     }
 
     override val vehicleListChanges = flow {
-        delay(15.seconds)
+        delay(INITIAL_DELAY_MS)
 
+        while (currentCoroutineContext().isActive) {
+            updateVehicles()
+            emit(Unit)
+            // delay(Random.nextInt(5, 20).seconds)
+            delay(generationDelay)
+        }
+    }
+        .flowOn(Dispatchers.IO)
+        .shareIn(scope = scope, started = SharingStarted.Eagerly)
+
+    private suspend fun updateVehicles() {
         val noParkingZoneCodes = zoneDao.getZonesByType(ZoneType.NoParking).map(ZoneEntity::code)
         val noParkingZoneCoordinates = noParkingZoneCodes.associateWith { zoneCode ->
             zoneCoordinatesDao
@@ -44,36 +67,28 @@ class VehicleServiceImpl(
                 .map { Coordinates(it.latitude, it.longitude) }
         }
 
-        while (currentCoroutineContext().isActive) {
-            val vehicles = vehicleDao.getAllVehicles()
-            val newVehicles = vehicles.shuffled().take(6)
+        val vehicles = vehicleDao.getAllVehicles()
+        val newVehicles = vehicles.shuffled().take(VEHICLES_TO_UPDATE)
 
-            newVehicles.forEach { vehicleEntity ->
-                val zoneBounds = zoneCoordinatesDao
-                    .getZoneCoordinatesByZoneCode(vehicleEntity.zoneCode)
-                    .map { Coordinates(it.latitude, it.longitude) }
+        newVehicles.forEach { vehicleEntity ->
+            val zoneBounds = zoneCoordinatesDao
+                .getZoneCoordinatesByZoneCode(vehicleEntity.zoneCode)
+                .map { Coordinates(it.latitude, it.longitude) }
 
-                val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
-                    zoneBounds = zoneBounds,
-                    exclusionZoneBounds = noParkingZoneCoordinates
-                )
+            val (latitude, longitude) = generateCoordinatesWithinZoneBounds(
+                zoneBounds = zoneBounds,
+                exclusionZoneBounds = noParkingZoneCoordinates
+            )
 
-                vehicleDao.updateVehicle(
-                    id = vehicleEntity.id,
-                    batteryCharge = Random.nextInt(40, 101),
-                    status = VehicleStatus.entries.random(),
-                    latitude = latitude,
-                    longitude = longitude
-                )
-            }
-
-            emit(Unit)
-//            delay(Random.nextInt(5, 20).seconds)
-            delay(Int.MAX_VALUE.hours)
+            vehicleDao.updateVehicle(
+                id = vehicleEntity.id,
+                batteryCharge = Random.nextInt(BATTERY_CHARGE_MIN, BATTERY_CHARGE_MAX - 1),
+                status = VehicleStatus.entries.random(),
+                latitude = latitude,
+                longitude = longitude
+            )
         }
     }
-        .flowOn(Dispatchers.IO)
-        .shareIn(scope = scope, started = SharingStarted.Eagerly)
 
     private fun generateCoordinatesWithinZoneBounds(
         zoneBounds: List<Coordinates>,
@@ -103,5 +118,12 @@ class VehicleServiceImpl(
         } while (shouldGenerate)
 
         return result
+    }
+
+    private companion object {
+        private const val INITIAL_DELAY_MS = 15000L
+        private const val VEHICLES_TO_UPDATE = 6
+        private const val BATTERY_CHARGE_MIN = 40
+        private const val BATTERY_CHARGE_MAX = 100
     }
 }

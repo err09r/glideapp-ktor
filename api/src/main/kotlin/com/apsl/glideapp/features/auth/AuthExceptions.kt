@@ -26,4 +26,3 @@ class UserNotFoundException(message: String? = "User not found") : GlideExceptio
 class UserAlreadyExistsException(message: String? = "User already exists") : GlideException(message) {
     override val code: Int = GlideErrorCodes.USER_ALREADY_EXISTS
 }
-

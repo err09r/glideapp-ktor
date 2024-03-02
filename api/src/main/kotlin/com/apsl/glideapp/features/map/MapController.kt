@@ -8,7 +8,6 @@ import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.features.config.GlideConfig
 import com.apsl.glideapp.features.vehicle.VehicleDao
 import com.apsl.glideapp.features.vehicle.VehicleService
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,7 +46,7 @@ class MapController(
     private fun observeMapContentWithinBounds() = vehicleService.vehicleListChanges
         .map { getCurrentMapContent() }
         .onStart { emit(getCurrentMapContent()) }
-        .debounce(2.seconds)
+        .debounce(UPDATE_INTERVAL_MS)
         .flowOn(Dispatchers.IO)
         .distinctUntilChanged()
 
@@ -72,5 +71,9 @@ class MapController(
             }
 
         return MapContentDto(availableVehicles = availableVehicles)
+    }
+
+    private companion object {
+        private const val UPDATE_INTERVAL_MS = 500L
     }
 }

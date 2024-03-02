@@ -22,10 +22,11 @@ import com.apsl.glideapp.features.vehicle.VehicleEntity
 import com.apsl.glideapp.features.zone.ZoneDao
 import com.apsl.glideapp.features.zone.bounds.ZoneCoordinatesDao
 import com.apsl.glideapp.utils.NoActiveRidesException
+import com.apsl.glideapp.utils.NotEnoughFundsException
 import com.apsl.glideapp.utils.PaginationData
 import com.apsl.glideapp.utils.UserInsideNoParkingZoneException
 import com.apsl.glideapp.utils.UserTooFarFromVehicleException
-import io.ktor.util.logging.KtorSimpleLogger
+import com.apsl.glideapp.utils.logd
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
@@ -43,7 +44,7 @@ class RideController(
 ) {
 
     suspend fun handleRideAction(action: RideAction, userId: String): Result<RideEventDto> = runCatching {
-        KtorSimpleLogger("RideController").error("action: $action")
+        logd("action: $action")
         when (action) {
             is RideAction.RequestCurrentState -> {
                 val (rideId, vehicle, dateTime) = getActiveRideData(userId = userId)
@@ -67,18 +68,20 @@ class RideController(
             }
 
             is RideAction.Finish -> {
-                finishRide(
+                val (distance, averageSpeed) = finishRide(
                     rideId = action.rideId,
                     userLocation = action.coordinates,
                     address = action.address,
                     dateTime = action.dateTime
                 )
-                RideEventDto.Finished
+                RideEventDto.Finished(distance, averageSpeed)
             }
         }
     }.recover { throwable ->
         when (throwable) {
             is UserInsideNoParkingZoneException -> RideEventDto.Error.UserInsideNoParkingZone
+            is UserTooFarFromVehicleException -> RideEventDto.Error.UserTooFarFromVehicle
+            is NotEnoughFundsException -> RideEventDto.Error.NotEnoughFunds
             is NoActiveRidesException -> RideEventDto.SessionCancelled(throwable.message)
             else -> throw throwable
         }
@@ -149,7 +152,7 @@ class RideController(
         val averageFarePerMinute = glideConfig.faresPerMinute.values.sum() / glideConfig.faresPerMinute.size
         val minimumAmountToStartRide = averageUnlockingFee + averageFarePerMinute
         if (transactionDao.getTransactionsAmountSumByUserId(userId) < minimumAmountToStartRide) {
-            error("User does not have enough funds to start a ride (min. amount = $minimumAmountToStartRide")
+            throw NotEnoughFundsException()
         }
     }
 
@@ -184,7 +187,7 @@ class RideController(
         userLocation: Coordinates,
         address: String?,
         dateTime: LocalDateTime
-    ) {
+    ): Pair<Double, Double> {
         val rideUuid = UUID.fromString(rideId)
 
         val ride = rideDao.getRideById(rideUuid) ?: error("")
@@ -234,6 +237,9 @@ class RideController(
         }
 
         updateVehicleAfterRide(vehicle = vehicle, distance = ride.distance, coordinates = userLocation)
+
+        val updatedRide = checkNotNull(rideDao.getRideById(rideUuid))
+        return updatedRide.distance to updatedRide.averageSpeed
     }
 
     private suspend fun updateVehicleAfterRide(vehicle: VehicleEntity, distance: Double, coordinates: Coordinates) {

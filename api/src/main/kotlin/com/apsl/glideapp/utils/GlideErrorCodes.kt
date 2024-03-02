@@ -24,6 +24,7 @@ object GlideErrorCodes {
     const val NO_ACTIVE_RIDES = 1201
     const val USER_TOO_FAR_FROM_VEHICLE = 1202
     const val USER_INSIDE_NO_PARKING_ZONE = 1203
+    const val NOT_ENOUGH_FUNDS = 1204
 
     const val INVALID_VOUCHER_CODE = 1301
 }
