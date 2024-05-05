@@ -38,3 +38,10 @@ out/
 
 ### Swagger ###
 docs/
+
+# Keystore files
+*.jks
+*.keystore
+keystore.properties
+
+ssl.properties
