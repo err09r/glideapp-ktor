@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "GlideApp API"
   description: "API for GlideApp client. Contains both HTTP and WebSocket routes."
-  version: "0.0.1"
+  version: "0.1.2"
 servers:
   - url: "http://127.0.0.1"
 paths:
