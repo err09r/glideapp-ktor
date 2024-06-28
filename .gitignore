@@ -1,9 +1,9 @@
 .gradle
+.kotlin
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-.env
+*.class
+temp/
+tmp/
 
 ### STS ###
 .apt_generated
@@ -14,17 +14,18 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
 *.iws
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+.idea/*
+!.idea/dictionaries
+!.idea/runConfigurations
+!.idea/icon.*[.png, .svg]
+!.idea/.name
+!.idea/externalDependencies.xml
 
 ### NetBeans ###
 /nbproject/private/
@@ -36,5 +37,29 @@ out/
 ### VS Code ###
 .vscode/
 
-### Swagger ###
+### Mac OS ###
+.DS_Store
+
+# Memory snapshots
+*.hprof
+
+# Log/OS Files
+*.log
+
+# Swagger
 docs/
+
+# Database files
+/database
+/db
+*.db
+
+# Keystore files
+*.jks
+*.keystore
+keystore.properties
+ssl.properties
+
+# Environment files
+.env
+.env.*

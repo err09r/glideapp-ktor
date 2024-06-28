@@ -22,7 +22,3 @@ dependencies {
     testImplementation(libs.ktor.server.tests.jvm)
     testImplementation(libs.kotlin.junit)
 }
-
-tasks {
-    create("stage").dependsOn("installDist")
-}
