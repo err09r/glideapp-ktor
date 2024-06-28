@@ -11,6 +11,7 @@ import com.apsl.glideapp.common.models.ZoneType
 import com.apsl.glideapp.common.models.asPairs
 import com.apsl.glideapp.common.util.Geometry
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -24,12 +25,18 @@ import kotlinx.coroutines.isActive
 class VehicleServiceImpl(
     private val vehicleDao: VehicleDao,
     private val zoneDao: ZoneDao,
-    private val zoneCoordinatesDao: ZoneCoordinatesDao
+    private val zoneCoordinatesDao: ZoneCoordinatesDao,
 ) : VehicleService {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private var generationDelay = Long.MAX_VALUE
+    private var isGenerationModeOn = false
+    private val generationDelayMs: Long
+        get() = if (isGenerationModeOn) {
+            FAST_GENERATION_DELAY_MS
+        } else {
+            Random.nextInt(30, 60).seconds.inWholeMilliseconds
+        }
 
     init {
         logi("Vehicle service created")
@@ -38,11 +45,11 @@ class VehicleServiceImpl(
 
     private fun updateGenerationDelay() {
         try {
-            val isGenerationModeOn = System.getenv()["GENERATE_MODE"].toBoolean()
-            check(isGenerationModeOn)
-            generationDelay = 10L
+            isGenerationModeOn = System.getenv()["GENERATE_MODE"].toBoolean()
         } catch (e: Exception) {
             loge(e.message.toString())
+        } finally {
+            logi("isGenerationModeOn: $isGenerationModeOn")
         }
     }
 
@@ -52,8 +59,7 @@ class VehicleServiceImpl(
         while (currentCoroutineContext().isActive) {
             updateVehicles()
             emit(Unit)
-            // delay(Random.nextInt(5, 20).seconds)
-            delay(generationDelay)
+            delay(generationDelayMs)
         }
     }
         .flowOn(Dispatchers.IO)
@@ -92,7 +98,7 @@ class VehicleServiceImpl(
 
     private fun generateCoordinatesWithinZoneBounds(
         zoneBounds: List<Coordinates>,
-        exclusionZoneBounds: Map<Int, List<Coordinates>>
+        exclusionZoneBounds: Map<Int, List<Coordinates>>,
     ): Coordinates {
         val topmostLatitude = zoneBounds.maxOf { it.latitude }
         val bottommostLatitude = zoneBounds.minOf { it.latitude }
@@ -122,6 +128,7 @@ class VehicleServiceImpl(
 
     private companion object {
         private const val INITIAL_DELAY_MS = 15000L
+        private const val FAST_GENERATION_DELAY_MS = 10L
         private const val VEHICLES_TO_UPDATE = 6
         private const val BATTERY_CHARGE_MIN = 40
         private const val BATTERY_CHARGE_MAX = 100
