@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
 }
@@ -7,20 +5,20 @@ plugins {
 group = Config.group
 version = Config.version
 
-tasks.withType<JavaCompile> {
+java {
     targetCompatibility = Config.javaVersion
     sourceCompatibility = Config.javaVersion
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = Config.javaVersion
-        freeCompilerArgs += listOf(
+kotlin {
+    compilerOptions {
+        jvmTarget.set(Config.jvmTarget)
+        freeCompilerArgs.addAll(
             "-opt-in=kotlin.RequiresOptIn",
             "-opt-in=kotlin.time.ExperimentalTime",
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
             "-opt-in=kotlinx.coroutines.FlowPreview",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
         )
     }
 }
