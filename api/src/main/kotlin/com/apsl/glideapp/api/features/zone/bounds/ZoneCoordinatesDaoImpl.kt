@@ -10,17 +10,6 @@ import org.jetbrains.exposed.sql.selectAll
 
 class ZoneCoordinatesDaoImpl : ZoneCoordinatesDao {
 
-    private fun ResultRow.toZoneCoordinatesEntity(): ZoneCoordinatesEntity {
-        return ZoneCoordinatesEntity(
-            id = this[ZoneCoordinatesTable.id],
-            zoneCode = this[ZoneCoordinatesTable.zoneCode],
-            latitude = this[ZoneCoordinatesTable.latitude],
-            longitude = this[ZoneCoordinatesTable.longitude],
-            createdAt = this[ZoneCoordinatesTable.createdAt],
-            updatedAt = this[ZoneCoordinatesTable.updatedAt]
-        )
-    }
-
     override suspend fun getLatestZoneCoordinatesByZoneCode(zoneCode: Int): ZoneCoordinatesEntity? = query {
         ZoneCoordinatesTable
             .selectAll()
@@ -51,5 +40,16 @@ class ZoneCoordinatesDaoImpl : ZoneCoordinatesDao {
             it[updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toZoneCoordinatesEntity()
+    }
+
+    private fun ResultRow.toZoneCoordinatesEntity(): ZoneCoordinatesEntity {
+        return ZoneCoordinatesEntity(
+            id = this[ZoneCoordinatesTable.id].value,
+            zoneCode = this[ZoneCoordinatesTable.zoneCode],
+            latitude = this[ZoneCoordinatesTable.latitude],
+            longitude = this[ZoneCoordinatesTable.longitude],
+            createdAt = this[ZoneCoordinatesTable.createdAt],
+            updatedAt = this[ZoneCoordinatesTable.updatedAt]
+        )
     }
 }

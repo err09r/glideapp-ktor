@@ -97,9 +97,9 @@ class RideDaoImpl : RideDao {
 
     private fun ResultRow.toRideEntity(): RideEntity {
         return RideEntity(
-            id = this[RidesTable.id],
-            userId = this[RidesTable.userId],
-            vehicleId = this[RidesTable.vehicleId],
+            id = this[RidesTable.id].value,
+            userId = this[RidesTable.userId].value,
+            vehicleId = this[RidesTable.vehicleId].value,
             startAddress = this[RidesTable.startAddress],
             finishAddress = this[RidesTable.finishAddress],
             startDateTime = this[RidesTable.startDateTime],

@@ -62,7 +62,7 @@ class UserDaoImpl : UserDao {
 
     private fun ResultRow.toUserEntity(): UserEntity {
         return UserEntity(
-            id = this[UsersTable.id],
+            id = this[UsersTable.id].value,
             username = this[UsersTable.username],
             password = this[UsersTable.password],
             salt = this[UsersTable.salt],

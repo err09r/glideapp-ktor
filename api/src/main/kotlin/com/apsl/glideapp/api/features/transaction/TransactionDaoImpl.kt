@@ -61,8 +61,8 @@ class TransactionDaoImpl : TransactionDao {
 
     private fun ResultRow.toTransactionEntity(): TransactionEntity {
         return TransactionEntity(
-            id = this[TransactionsTable.id],
-            userId = this[TransactionsTable.userId],
+            id = this[TransactionsTable.id].value,
+            userId = this[TransactionsTable.userId].value,
             amount = this[TransactionsTable.amount],
             type = this[TransactionsTable.type],
             createdAt = this[TransactionsTable.createdAt],

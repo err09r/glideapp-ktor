@@ -9,6 +9,7 @@ interface VehicleDao {
     suspend fun getVehiclesByZoneCode(code: Int): List<VehicleEntity>
     suspend fun getVehiclesByStatus(status: VehicleStatus): List<VehicleEntity>
     suspend fun getVehicleById(id: UUID): VehicleEntity?
+    suspend fun getVehicleByCode(code: Int): VehicleEntity?
     suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean
     suspend fun updateVehicle(
         id: UUID,

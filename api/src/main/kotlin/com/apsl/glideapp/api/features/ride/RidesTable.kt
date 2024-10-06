@@ -3,11 +3,10 @@ package com.apsl.glideapp.api.features.ride
 import com.apsl.glideapp.api.features.user.UsersTable
 import com.apsl.glideapp.api.features.vehicle.VehiclesTable
 import com.apsl.glideapp.common.models.RideStatus
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object RidesTable : Table("rides") {
-    val id = uuid("id").autoGenerate().uniqueIndex()
+object RidesTable : UUIDTable("rides") {
     val userId = reference("user_id", UsersTable.id)
     val vehicleId = reference("vehicle_id", VehiclesTable.id)
     val startAddress = text("start_address").nullable().default(null)
@@ -19,6 +18,4 @@ object RidesTable : Table("rides") {
     val averageSpeed = double("average_speed").default(0.0)
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
-
-    override val primaryKey = PrimaryKey(id)
 }

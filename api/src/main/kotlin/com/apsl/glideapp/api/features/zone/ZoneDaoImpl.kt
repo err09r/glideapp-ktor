@@ -44,7 +44,7 @@ class ZoneDaoImpl : ZoneDao {
 
     private fun ResultRow.toZoneEntity(): ZoneEntity {
         return ZoneEntity(
-            id = this[ZonesTable.id],
+            id = this[ZonesTable.id].value,
             code = this[ZonesTable.code],
             title = this[ZonesTable.title],
             type = this[ZonesTable.type],

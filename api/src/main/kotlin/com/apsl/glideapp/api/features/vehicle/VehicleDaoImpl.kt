@@ -39,6 +39,14 @@ class VehicleDaoImpl : VehicleDao {
             .singleOrNull()
     }
 
+    override suspend fun getVehicleByCode(code: Int): VehicleEntity? = query {
+        VehiclesTable
+            .selectAll()
+            .where { VehiclesTable.code eq code }
+            .map { it.toVehicleEntity() }
+            .singleOrNull()
+    }
+
     override suspend fun insertVehicle(
         code: Int,
         zoneCode: Int,
@@ -56,8 +64,8 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.status] = status
             it[VehiclesTable.latitude] = latitude
             it[VehiclesTable.longitude] = longitude
-            it[createdAt] = LocalDateTime.now()
-            it[updatedAt] = LocalDateTime.now()
+            it[VehiclesTable.createdAt] = LocalDateTime.now()
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
         }
         insertStatement.resultedValues?.singleOrNull()?.toVehicleEntity()
     }
@@ -74,20 +82,20 @@ class VehicleDaoImpl : VehicleDao {
             it[VehiclesTable.status] = status
             it[VehiclesTable.latitude] = latitude
             it[VehiclesTable.longitude] = longitude
-            it[updatedAt] = LocalDateTime.now()
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 
     override suspend fun updateVehicle(id: UUID, status: VehicleStatus): Boolean = query {
         VehiclesTable.update({ VehiclesTable.id eq id }) {
             it[VehiclesTable.status] = status
-            it[updatedAt] = LocalDateTime.now()
+            it[VehiclesTable.updatedAt] = LocalDateTime.now()
         } > 0
     }
 
     private fun ResultRow.toVehicleEntity(): VehicleEntity {
         return VehicleEntity(
-            id = this[VehiclesTable.id],
+            id = this[VehiclesTable.id].value,
             code = this[VehiclesTable.code],
             zoneCode = this[VehiclesTable.zoneCode],
             batteryCharge = this[VehiclesTable.batteryCharge],

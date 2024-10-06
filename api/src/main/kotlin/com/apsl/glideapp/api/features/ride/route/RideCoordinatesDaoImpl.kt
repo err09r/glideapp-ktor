@@ -51,8 +51,8 @@ class RideCoordinatesDaoImpl : RideCoordinatesDao {
 
     private fun ResultRow.toRideCoordinatesEntity(): RideCoordinatesEntity {
         return RideCoordinatesEntity(
-            id = this[RideCoordinatesTable.id],
-            rideId = this[RideCoordinatesTable.rideId],
+            id = this[RideCoordinatesTable.id].value,
+            rideId = this[RideCoordinatesTable.rideId].value,
             latitude = this[RideCoordinatesTable.latitude],
             longitude = this[RideCoordinatesTable.longitude],
             createdAt = this[RideCoordinatesTable.createdAt],

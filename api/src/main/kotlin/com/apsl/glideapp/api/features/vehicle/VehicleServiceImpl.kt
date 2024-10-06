@@ -3,8 +3,6 @@ package com.apsl.glideapp.api.features.vehicle
 import com.apsl.glideapp.api.features.zone.ZoneDao
 import com.apsl.glideapp.api.features.zone.ZoneEntity
 import com.apsl.glideapp.api.features.zone.bounds.ZoneCoordinatesDao
-import com.apsl.glideapp.api.utils.loge
-import com.apsl.glideapp.api.utils.logi
 import com.apsl.glideapp.common.models.Coordinates
 import com.apsl.glideapp.common.models.VehicleStatus
 import com.apsl.glideapp.common.models.ZoneType
@@ -21,35 +19,32 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class VehicleServiceImpl(
     private val vehicleDao: VehicleDao,
     private val zoneDao: ZoneDao,
     private val zoneCoordinatesDao: ZoneCoordinatesDao,
+    isGenerationModeEnabled: Boolean
 ) : VehicleService {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private var isGenerationModeOn = false
     private val generationDelayMs: Long
-        get() = if (isGenerationModeOn) {
-            FAST_GENERATION_DELAY_MS
-        } else {
-            Random.nextInt(30, 60).seconds.inWholeMilliseconds
-        }
+        get() = Random.nextInt(GENERATION_MIN_SECONDS, GENERATION_MAX_SECONDS).seconds.inWholeMilliseconds
 
     init {
-        logi("Vehicle service created")
-        updateGenerationDelay()
+        if (isGenerationModeEnabled) {
+            startGenerator()
+        }
     }
 
-    private fun updateGenerationDelay() {
-        try {
-            isGenerationModeOn = System.getenv()["GENERATE_MODE"].toBoolean()
-        } catch (e: Exception) {
-            loge(e.message.toString())
-        } finally {
-            logi("isGenerationModeOn: $isGenerationModeOn")
+    private fun startGenerator() {
+        scope.launch {
+            while (isActive) {
+                updateVehicles()
+                delay(GENERATION_DELAY_MS)
+            }
         }
     }
 
@@ -128,9 +123,11 @@ class VehicleServiceImpl(
 
     private companion object {
         private const val INITIAL_DELAY_MS = 15000L
-        private const val FAST_GENERATION_DELAY_MS = 10L
         private const val VEHICLES_TO_UPDATE = 6
         private const val BATTERY_CHARGE_MIN = 40
         private const val BATTERY_CHARGE_MAX = 100
+        private const val GENERATION_DELAY_MS = 10L
+        private const val GENERATION_MIN_SECONDS = 30
+        private const val GENERATION_MAX_SECONDS = 60
     }
 }
