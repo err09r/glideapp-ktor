@@ -16,16 +16,17 @@ tmp/
 bin/
 
 ### IntelliJ IDEA ###
+out/
 *.iws
 *.iml
 *.ipr
-out/
 .idea/*
+!.idea/.name
+!.idea/icon.*[.png, .svg]
 !.idea/dictionaries
 !.idea/runConfigurations
-!.idea/icon.*[.png, .svg]
-!.idea/.name
 !.idea/externalDependencies.xml
+!.idea/codeInsightSettings.xml
 
 ### NetBeans ###
 /nbproject/private/

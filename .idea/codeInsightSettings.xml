@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+    <component name="JavaProjectCodeInsightSettings">
+        <excluded-names>
+            <name>jakarta.inject.Inject</name>
+            <name>java.util.concurrent.Flow</name>
+            <name>kotlin.coroutines.cancellation.CancellationException</name>
+            <name>org.intellij.lang.annotations.Flow</name>
+            <name>org.w3c.dom.Text</name>
+        </excluded-names>
+    </component>
+</project>

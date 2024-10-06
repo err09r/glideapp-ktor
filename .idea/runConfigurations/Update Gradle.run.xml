@@ -11,8 +11,7 @@
             <option name="taskNames">
                 <list>
                     <option value="wrapper"/>
-                    <option value="--gradle-version"/>
-                    <option value="latest"/>
+                    <option value="--gradle-version=latest"/>
                 </list>
             </option>
             <option name="vmOptions"/>
