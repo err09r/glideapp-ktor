@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.commons.codec)
     implementation(libs.postgresql)
+    implementation(libs.sqlite)
 
     testImplementation(libs.ktor.server.tests.jvm)
     testImplementation(libs.kotlin.junit)
